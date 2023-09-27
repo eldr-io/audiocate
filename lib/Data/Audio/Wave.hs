@@ -7,6 +7,7 @@ module Data.Audio.Wave (
   WaveAudio (..),
   Sample,
   Samples,
+  Frame,
   waveAudioFromFile,
   waveAudioToFile,
 )
@@ -25,7 +26,7 @@ type Sample = Int16
 
 type Samples = [Sample]
 
--- type Frames = [Samples]
+type Frame = [Sample]
 
 -- | Represents raw WaveAudio data parsed from a file
 data WaveAudio = WaveAudio

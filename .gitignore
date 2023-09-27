@@ -24,3 +24,4 @@ cabal.project.local~
 
 test/corpus/lol.wav
 test/output/*.wav
+test/output/*.png
