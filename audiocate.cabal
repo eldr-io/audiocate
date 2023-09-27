@@ -43,6 +43,7 @@ library
       Data.Audio.Wave
       , Stego.Common
       , Stego.Encode.LSB
+      , Stego.Encode.Encoder
 
     -- LANGUAGE extensions used by modules in this package.
     -- other-extensions:
