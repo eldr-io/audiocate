@@ -1,19 +1,17 @@
-{- | Module for encoding and decoding into Audio samples using
+{- | Module for encoding into Audio samples using
 - the Least Significant Bit (LSB) approach. Payloads are embedded
 - into the 16th LSB of each 16-bit sample provided.
 -}
 module Stego.Encode.LSB (
   encodeFrame,
-  decodeFrame,
 )
 where
 
-import Bits.Show (showFiniteBits)
 import Data.Audio.Wave
 import Data.Bits
+import Data.Maybe (fromJust)
 import Data.Word (Word64)
 import Stego.Common (TotpPayload)
-import Data.Maybe (fromJust)
 
 {- | Encodes the provided frame by embedding the timestamp and
 TotpPayload into the start of the frame
@@ -24,16 +22,7 @@ encodeFrame time payload frame = encTime ++ enc ++ drop 96 frame
   tSize = fromJust $ bitSizeMaybe time
   pSize = fromJust $ bitSizeMaybe payload
   encodeBits = map (\(x, y) -> if y then x `setBit` 0 else x `clearBit` 0)
-  enc = encodeBits $ zip (drop tSize frame) (zs (pSize-1) payload)
-  encTime = encodeBits $ zip frame (zs (tSize-1) time)
+  enc = encodeBits $ zip (drop tSize frame) (zs (pSize - 1) payload)
+  encTime = encodeBits $ zip frame (zs (tSize - 1) time)
   zs (-1) _ = []
   zs n p = (p .&. bit n /= 0) : zs (n - 1) p
-
-{- | Decodes the provided frame by extracting the various payload
-components
--}
-decodeFrame :: Frame -> (String, String)
-decodeFrame f =
-  let timePayload = map (last . showFiniteBits) (take 64 f)
-      totpPayload = map (last . showFiniteBits) (take 32 (drop 64 f))
-   in (timePayload, totpPayload)
