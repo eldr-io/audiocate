@@ -7,6 +7,7 @@ module Stego.Common
     bitInitPattern,
     TotpPayload,
     TimestampPayload,
+    DecodedPayload,
     Payload,
     Secret,
     calculateTotp,
@@ -44,6 +45,9 @@ type TimestampPayload = Word32
 
 -- | Optional payload to encode after verification headers
 type Payload = Int32
+
+-- | Tuple of time and totpPayload that is decoded from each frame
+type DecodedPayload = (Word64, TotpPayload)
 
 -- | StegoParams instance used to capture parameters
 data StegoParams = StegoParams Secret Word64 Word8 EncodingType Payload
