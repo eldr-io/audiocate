@@ -10,7 +10,8 @@ import Data.Text.Encoding (encodeUtf8)
 import Data.Time.Clock (getCurrentTime)
 import Stego.Common (EncodingType (LsbEncoding), StegoParams (StegoParams), calculateTotp, checkTotp, readBinWord32, readBinWord64, utcTimeToWord64, word64ToUtcTime)
 import Stego.Encode.Encoder (enqueueFrame, newEncoder, startEncoder, takeStopVar)
-import Stego.Encode.LSB (decodeFrame, encodeFrame)
+import Stego.Encode.LSB (encodeFrame)
+import Stego.Decode.LSB (decodeFrame)
 
 start :: IO ()
 start = do

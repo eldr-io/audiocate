@@ -9,6 +9,7 @@ module Stego.Common (
   TotpPayload,
   TimestampPayload,
   DecodedPayload,
+  DecodedFrame,
   Payload,
   Secret,
   calculateTotp,
@@ -22,7 +23,7 @@ module Stego.Common (
 where
 
 import Data.ByteString qualified as BS
-import Data.Int (Int32)
+import Data.Int (Int32, Int16)
 import Data.OTP (HashAlgorithm (..), totp, totpCheck)
 import Data.Time.Clock (UTCTime (..))
 import Data.Time.Clock.POSIX (posixSecondsToUTCTime, utcTimeToPOSIXSeconds)
@@ -57,6 +58,8 @@ type Payload = Int32
 
 -- | Tuple of time and totpPayload that is decoded from each frame
 type DecodedPayload = (Word64, TotpPayload)
+
+type DecodedFrame = ([Int16], DecodedPayload)
 
 -- | StegoParams instance used to capture parameters
 data StegoParams = StegoParams Secret Word64 Word8 EncodingType Payload

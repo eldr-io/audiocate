@@ -44,6 +44,8 @@ library
       , Stego.Common
       , Stego.Encode.LSB
       , Stego.Encode.Encoder
+      , Stego.Decode.LSB
+      , Stego.Decode.Decoder
 
     -- LANGUAGE extensions used by modules in this package.
     -- other-extensions:
