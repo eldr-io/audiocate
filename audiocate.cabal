@@ -27,7 +27,8 @@ library
     ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
 
     -- Modules included in this library but not exported.
-    -- other-modules:
+    other-modules:
+      Data.Audio.Wave
 
     -- LANGUAGE extensions used by modules in this package.
     -- other-extensions:
@@ -39,8 +40,10 @@ library
       , random
       , split
       , stm
+      , mtl
+      , bytestring
     hs-source-dirs:   lib
-    default-language: Haskell2010
+    default-language: GHC2021
 
 executable audiocate
     main-is:          Main.hs
@@ -56,13 +59,18 @@ executable audiocate
         , audiocate
 
     hs-source-dirs:   app
-    default-language: Haskell2010
+    default-language: GHC2021
 
 test-suite audiocate-test
-    default-language: Haskell2010
+    default-language: GHC2021
     type:             exitcode-stdio-1.0
     hs-source-dirs:   test
     main-is:          Spec.hs
+    ghc-options:
+        -O -threaded -rtsopts -with-rtsopts=-N
+    build-tool-depends:
+      hspec-discover:hspec-discover
     build-depends:    
         base >=4.7 && <5 
       , hspec
+      , hspec-discover
