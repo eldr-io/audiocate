@@ -22,6 +22,18 @@ extra-source-files:
     CHANGELOG.md
     README.md
 
+library external
+  hs-source-dirs: external
+  exposed-modules: Data.OTP 
+  build-depends: 
+    base >=4.7 && <5 
+    , time
+    , bytestring
+    , cryptohash-sha1 
+    , cryptohash-sha256 
+    , cryptohash-sha512 
+  default-language: GHC2021
+
 library
     exposed-modules:  Audiocate
     ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
@@ -29,19 +41,22 @@ library
     -- Modules included in this library but not exported.
     other-modules:
       Data.Audio.Wave
+      , Stego.Common
 
     -- LANGUAGE extensions used by modules in this package.
     -- other-extensions:
     build-depends:    
       base >=4.7 && <5 
+      , external
       , HCodecs
       , array
       , bits-show
-      , random
       , split
       , stm
       , mtl
       , bytestring
+      , time
+      , text
     hs-source-dirs:   lib
     default-language: GHC2021
 
