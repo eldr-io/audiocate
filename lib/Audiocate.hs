@@ -1,124 +1,137 @@
 module Audiocate (start) where
 
-import Bits.Show (showFiniteBits)
-import Control.Concurrent (threadDelay)
+import Control.Concurrent (forkIO)
+import Control.Concurrent.STM (atomically, newEmptyTMVarIO, putTMVar, readTChan, takeTMVar)
+import Control.Monad (void)
 import Control.Monad.Except (runExceptT)
-import Data.Audio.Wave (WaveAudio (..), waveAudioFromFile, waveAudioToFile)
+import Data.Audio.Wave (Frames, WaveAudio (..), waveAudioFromFile, waveAudioToFile)
 import Data.List.Split (chunksOf)
 import Data.Text qualified as T
 import Data.Text.Encoding (encodeUtf8)
 import Data.Time.Clock (getCurrentTime)
-import Stego.Common (EncodingType (LsbEncoding), StegoParams (StegoParams), calculateTotp, checkTotp, readBinWord32, readBinWord64, utcTimeToWord64, word64ToUtcTime)
-import Stego.Encode.Encoder (enqueueFrame, newEncoder, startEncoder, takeStopVar)
-import Stego.Encode.LSB (encodeFrame)
-import Stego.Decode.LSB (decodeFrame)
+import Stego.Common (EncodingType (LsbEncoding), StegoParams (StegoParams))
+import Stego.Decode.Decoder qualified as DC
+import Stego.Encode.Encoder (EncoderResult (..), enqueueFrame, getResultChannel, newEncoder, stopEncoder)
+
+doEncodeWaveAudio :: StegoParams -> WaveAudio -> IO Frames
+doEncodeWaveAudio stegoParams waveAudio = do
+  encoder <- newEncoder stegoParams
+  decoder <- DC.newDecoder stegoParams
+  resD <- DC.getResultChannel decoder
+  resC <- getResultChannel encoder
+  resPrint <- getResultChannel encoder
+  let frames = chunksOf (rate waveAudio) (samples waveAudio)
+
+  void $ DC.mapDecoderOpQToResultChan decoder resC
+  void $ forkIO $ printLoop resPrint (0 :: Int) frames
+
+  mapM_ (enqueueFrame encoder) frames
+  _ <- stopEncoder encoder
+  loopDc resD [] (length frames)
+ where
+  loopDc resD fs total = do
+    res <- atomically $ readTChan resD
+    case res of
+      (DC.DecodedFrameR (f, _) verified) -> do
+        putStrLn
+          $ "Decoded: "
+          ++ show (length fs + 1)
+          ++ "/"
+          ++ show total
+          ++ " (Verified: "
+          ++ show verified
+          ++ ")"
+        loopDc resD (f : fs) total
+      DC.StoppingDecoder -> do
+        putStrLn "Received stopping decoder"
+        pure (reverse fs)
+      DC.SkippedFrame f -> do
+        loopDc resD (f : fs) total
+  printLoop c fs totalFs = do
+    res <- atomically $ readTChan c
+    case res of
+      StoppingEncoder -> pure ()
+      _ -> do
+        putStrLn
+          $ "Encoded "
+          ++ show (fs + 1)
+          ++ "/"
+          ++ show (length totalFs)
+          ++ " frame(s)."
+        printLoop c (fs + 1) totalFs
+
+doDecodeWaveAudio :: StegoParams -> WaveAudio -> IO DC.DecoderResultList
+doDecodeWaveAudio stegoParams waveAudio = do
+  decoder <- DC.newDecoder stegoParams
+  resD <- DC.getResultChannel decoder
+  m <- newEmptyTMVarIO
+  void $ forkIO $ decodeLoop resD [] m
+  let frames = chunksOf (rate waveAudio) (samples waveAudio)
+  print $ length frames
+  mapM_ (DC.enqueueFrame decoder) frames
+  _ <- DC.stopDecoder decoder
+  atomically $ takeTMVar m
+ where
+  decodeLoop channel fs resultVar = do
+    res <- atomically $ readTChan channel
+    case res of
+      DC.StoppingDecoder -> do
+        putStrLn "Received stopping decoder"
+        atomically $ putTMVar resultVar (reverse fs)
+        pure ()
+      f -> do
+        decodeLoop channel (f : fs) resultVar
 
 start :: IO ()
 start = do
   let inputFile = "test/corpus/sample1.wav"
+  let outputFile = "test/output/sample1_out.wav"
+  doEncodeFile inputFile outputFile
+  putStrLn "Time for decode .."
+  doDecodeFile outputFile
+
+doDecodeFile :: FilePath -> IO ()
+doDecodeFile inputFile = do
   time <- getCurrentTime
   putStrLn $ "Current Time: " ++ show time
   let secret = encodeUtf8 (T.pack "Sef7Kp%IU{T&In-=t'up/V2NwiY7,4Ds")
   putStrLn $ "Acquired secret: " ++ show secret
   let stegoParams = StegoParams secret 5 6 LsbEncoding 123
-  putStrLn "Starting encoder.."
-  encoder <- newEncoder stegoParams
   putStrLn "Reading sample audio file.."
   audio <- runExceptT (waveAudioFromFile inputFile)
   case audio of
     Left err -> putStrLn err
     Right wa -> do
-      let s' = chunksOf (rate wa) $ samples wa
-      putStrLn $ "Enqueueing " ++ show (length s') ++ " frames.."
-      mapM_
-        ( \x -> do
-            putStrLn "Enqueue..."
-            enqueueFrame encoder x
-        )
-        (init s')
-      startEncoder encoder
-      threadDelay 5000
-      putStrLn "Enqueue last"
-      enqueueFrame encoder (last s')
-      frames <- takeStopVar encoder
-      print (length frames)
-      print $ length frames == length s'
-      let df = decodeFrame (head frames)
-      let decodedTimestamp = readBinWord64 (fst df)
-      let decodedTotpValue = readBinWord32 (snd df)
-      print decodedTimestamp
-      print decodedTotpValue
-      let dstamp = word64ToUtcTime decodedTimestamp
-      print dstamp
-      let pog = checkTotp stegoParams dstamp decodedTotpValue
-      putStrLn $ "SUCCESS: " ++ show pog
+      putStrLn "Starting decoder.."
+      result <- doDecodeWaveAudio stegoParams wa
+      putStrLn $ "\n\nDecode Result for " ++ inputFile
+      print $ DC.getResultStats result
 
-someFunc :: IO ()
-someFunc = do
-  let inputFile = "test/corpus/sample2.wav"
-  let outputFile = "test/output/sample2_out.wav"
+doEncodeFile :: FilePath -> FilePath -> IO ()
+doEncodeFile inputFile outputFile = do
   time <- getCurrentTime
   putStrLn $ "Current Time: " ++ show time
   let secret = encodeUtf8 (T.pack "Sef7Kp%IU{T&In-=t'up/V2NwiY7,4Ds")
   putStrLn $ "Acquired secret: " ++ show secret
   let stegoParams = StegoParams secret 5 6 LsbEncoding 123
-  putStrLn "Calculating TOTP Value..."
-  let totpValue = calculateTotp stegoParams time
-  print totpValue
-  putStrLn "Verifying TOTP.."
-  print $ checkTotp stegoParams time totpValue
-
   putStrLn "Reading sample audio file.."
   audio <- runExceptT (waveAudioFromFile inputFile)
   case audio of
     Left err -> putStrLn err
     Right wa -> do
-      print wa
-      let s' = chunksOf (rate wa) $ samples wa
-      let s = s' !! 10
-      let timestamp = utcTimeToWord64 time
-      let encodedFrame = encodeFrame timestamp totpValue s
-      putStrLn "BINARY Reps"
-      putStrLn $ "Time: " ++ showFiniteBits timestamp
-      putStrLn $ "TOTP: " ++ showFiniteBits totpValue
-      putStrLn "Encoding file ..."
-      let encodedFrames = map (encodeFrame timestamp totpValue) s'
-      let combined = concat encodedFrames
-      putStrLn "First pass Decoding using LSB 16 SHA1..."
-      let decodedFrame = decodeFrame encodedFrame
-      print decodedFrame
-      let decodedTimestamp = readBinWord64 (fst decodedFrame)
-      let decodedTotpValue = readBinWord32 (snd decodedFrame)
-      print decodedTimestamp
-      print decodedTotpValue
-      let dstamp = word64ToUtcTime decodedTimestamp
-      print dstamp
-      let pog = checkTotp stegoParams dstamp decodedTotpValue
-      putStrLn $ "Success: " ++ show pog
-      putStrLn "Writing encoded file ..."
-
+      putStrLn "Starting decoder.."
+      result <- doEncodeWaveAudio stegoParams wa
+      putStrLn "Done."
+      putStrLn $ "Writing encoded file " ++ outputFile ++ "..."
       let wa' =
             WaveAudio
-              { srcFile = outputFile,
-                bitSize = 16,
-                rate = rate wa,
-                channels = channels wa,
-                samples = combined
+              { srcFile = outputFile
+              , bitSize = 16
+              , rate = rate wa
+              , channels = channels wa
+              , samples = concat result
               }
       write <- runExceptT (waveAudioToFile outputFile wa')
       case write of
         Left err -> putStrLn err
-        Right _ -> do
-          putStrLn $ "Wrote file to " ++ outputFile
-
-          audio' <- runExceptT (waveAudioFromFile outputFile)
-          case audio' of
-            Left err -> putStrLn err
-            Right wd -> do
-              print wd
-              let d = chunksOf (rate wd) $ samples wd
-              putStrLn $ "Decoding " ++ show (length d) ++ " frame(s)..."
-              let ds = map decodeFrame d
-              let ts = map (\(x, y) -> x == showFiniteBits timestamp && y == showFiniteBits totpValue) ds
-              let success = and ts
-              putStrLn $ "Successful Decode: " <> show success
+        Right _ -> putStrLn "wrote file"
