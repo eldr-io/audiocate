@@ -23,7 +23,7 @@ module Stego.Common (
 )
 where
 
-import Data.Audio.Wave (Frame, Frames)
+import Data.Audio.Wave (Frame)
 import Data.ByteString qualified as BS
 import Data.Int (Int16, Int32)
 import Data.OTP (HashAlgorithm (..), totp, totpCheck)
@@ -104,4 +104,4 @@ suitable for encoding/decoding. This is mostly done by assessing if the
 targeted bits are too quiet / low in energy.
 -}
 shouldSkipFrame :: Frame -> Bool
-shouldSkipFrame (_,f) = realToFrac (sum (map abs (take 128 f))) < (1E-2 :: Double)
+shouldSkipFrame (_, f) = realToFrac (sum (map abs (take 128 f))) < (1E-3 :: Double)
