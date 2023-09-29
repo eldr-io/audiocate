@@ -53,6 +53,7 @@ doDecodeWaveAudio stegoParams waveAudio = do
   m <- newEmptyTMVarIO
   void $ forkIO $ decodeLoop resD [] m
   let frames = audioFrames waveAudio
+  print $ length frames
   mapM_ (DC.enqueueFrame decoder) frames
   _ <- DC.stopDecoder decoder
   atomically $ takeTMVar m
@@ -61,6 +62,7 @@ doDecodeWaveAudio stegoParams waveAudio = do
     res <- atomically $ readTChan channel
     case res of
       DC.StoppingDecoder -> do
+        putStrLn "Received stopping decoder"
         atomically $ putTMVar resultVar (sort fs)
         pure ()
       f -> do
@@ -72,23 +74,23 @@ start = do
   let outputFile = "test/output/sample2_out.wav"
   let secret = encodeUtf8 (T.pack "Sef7Kp%IU{T&In-=t'up/V2NwiY7,4Ds")
   let stegoParams = StegoParams secret 5 6 LsbEncoding 123
-  doEncodeFile stegoParams inputFile outputFile
+  startTime <- getCurrentTime
+  -- doEncodeFile stegoParams inputFile outputFile
   doDecodeFile stegoParams outputFile
+  endTime <- getCurrentTime
+  putStrLn $ "Completed in " <> show (diffUTCTime endTime startTime)
 
 doDecodeFile :: StegoParams -> FilePath -> IO ()
 doDecodeFile stegoParams inputFile = do
   startTime <- getCurrentTime
-  putStrLn $ "Reading audio file " ++ inputFile ++ "..." 
+  putStrLn "Reading sample audio file.."
   audio <- runExceptT (waveAudioFromFile inputFile)
   case audio of
     Left err -> putStrLn err
     Right wa -> do
-      readTime <- getCurrentTime
-      putStrLn $ "Read file in " <> show (diffUTCTime readTime startTime)
-      putStrLn ""
-      print wa
+      putStrLn "Starting decoder.."
       result <- doDecodeWaveAudio stegoParams wa
-      putStrLn "\nDecode Result "
+      putStrLn $ "\n\nDecode Result for " ++ inputFile
       print $ DC.getResultStats result
       endTime <- getCurrentTime
       putStrLn $ "Completed decode in " <> show (diffUTCTime endTime startTime)
@@ -96,20 +98,17 @@ doDecodeFile stegoParams inputFile = do
 doEncodeFile :: StegoParams -> FilePath -> FilePath -> IO ()
 doEncodeFile stegoParams inputFile outputFile = do
   startTime <- getCurrentTime
-  putStrLn $ "Reading audio file " ++ inputFile ++ "..." 
+  putStrLn "Reading sample audio file.."
   audio <- runExceptT (waveAudioFromFile inputFile)
   case audio of
     Left err -> putStrLn err
     Right wa -> do
-      readTime <- getCurrentTime
-      putStrLn $ "Read file in " <> show (diffUTCTime readTime startTime)
-      putStrLn ""
-      print wa
+      putStrLn "Starting decoder.."
       let frames = audioFrames wa
       result <- doEncodeFrames stegoParams (take (length frames `div` 2) frames)
       result2 <- doEncodeFrames stegoParams (drop (length frames `div` 2) frames)
-      putStrLn "\nEncode Result "
-      putStrLn $ "\nTotal Frames in file: " ++ show (length $ audioFrames wa)
+      putStrLn $ "\n\nEncode Result for " ++ inputFile
+      putStrLn $ "Total Frames in file: " ++ show (length $ audioFrames wa)
       let combined = result ++ result2
       print $ DC.getResultStats combined
       putStrLn $ "Writing encoded file " ++ outputFile ++ "..."

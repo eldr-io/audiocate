@@ -10,6 +10,7 @@ module Stego.Decode.Decoder
     mapDecoderOpQToResultChan,
     DecoderResultList,
     getResultStats,
+    getResultFrames,
   )
 where
 
@@ -30,7 +31,7 @@ import Control.Concurrent.STM
   )
 import Control.Monad (void)
 import Control.Monad.STM (atomically)
-import Data.Audio.Wave (Frame)
+import Data.Audio.Wave (Frame, Frames)
 import Data.List (foldl')
 import Stego.Common
   ( DecodedFrame,
@@ -54,6 +55,16 @@ data DecoderResult
   = DecodedFrameR DecodedFrame Bool
   | SkippedFrame Frame
   | StoppingDecoder
+  deriving (Eq)
+
+instance Ord DecoderResult where
+  compare :: DecoderResult -> DecoderResult -> Ordering
+  compare x y
+    | i == j = EQ
+    | i <= j  = LT
+    | otherwise  = GT
+    where i = getDecoderResultFrameIndex x
+          j = getDecoderResultFrameIndex y
 
 type DecoderResultList = [DecoderResult]
 
@@ -73,8 +84,19 @@ data Decoder = Decoder
     resultChan :: TChan DecoderResult
   }
 
+getDecoderResultFrameIndex :: DecoderResult -> Int
+getDecoderResultFrameIndex (DecodedFrameR (i, _, _) _) = i 
+getDecoderResultFrameIndex (SkippedFrame (i, _)) = i
+getDecoderResultFrameIndex StoppingDecoder = -1
+
 getResultStats :: DecoderResultList -> DecoderResultStats
 getResultStats dcl = countStatsDcl' dcl (DRS 0 0 0 0)
+
+getResultFrames :: DecoderResultList -> Frames
+getResultFrames [] = []
+getResultFrames ((DecodedFrameR (i, f, _) _):xs) = (i,f): getResultFrames xs 
+getResultFrames (SkippedFrame (i, f):xs) = (i,f): getResultFrames xs
+getResultFrames (_:xs) = getResultFrames xs
 
 -- | Used to traverse a DecoderResultList only once and accumulate all interesting
 -- count statistics, returning the DecoderResultStats
@@ -129,19 +151,19 @@ mapDecoderOpQToResultChan dec channel = void $ forkIO loop
           loop
         EC.StoppingEncoder -> do
           _ <- stopDecoder dec
-          putStrLn "Received stopping encoder signal on chan"
+          pure ()
         (EC.SkippedFrame f) -> do
           enqueueFrame dec f
           loop
 
 decodeFrame' :: StegoParams -> Frame -> Maybe DecodedFrame
 decodeFrame' stegoParams frame
-  | length frame < 128 = Nothing
+  | length (snd frame) < 128 = Nothing
   | getEncodingType stegoParams == LsbEncoding =
-      Just (frame, (time64, totp32))
+      Just (i, snd frame, (time64, totp32))
   | otherwise = Nothing
   where
-    (time, totp) = Stego.Decode.LSB.decodeFrame frame
+    (i, time, totp) = Stego.Decode.LSB.decodeFrame frame
     time64 = readBinWord64 time
     totp32 = readBinWord32 totp
 
@@ -149,14 +171,15 @@ runDecoder :: Decoder -> IO ()
 runDecoder dec = loop
   where
     toResult frame Nothing = SkippedFrame frame
-    toResult _ (Just (frame, (time, payload))) =
+    toResult _ (Just (i, samples, (time, payload))) =
       DecodedFrameR
-        (frame, (time, payload))
+        (i, samples, (time, payload))
         (checkTotp (stegoParams dec) (word64ToUtcTime time) payload)
     loop = do
       op <- atomically $ readTQueue (opQ dec)
       case op of
         (DecodeFrame f) -> do
+          -- putStrLn $ "received DecodeFrame" ++ show (fst f)
           let shouldSkip = shouldSkipFrame f
           if shouldSkip
             then do
@@ -166,6 +189,7 @@ runDecoder dec = loop
               let decoded = decodeFrame' (stegoParams dec) f
               atomically $ writeTChan (resultChan dec) (toResult f decoded)
               loop
-        (StopDecoder m) -> atomically $ do
-          writeTChan (resultChan dec) StoppingDecoder
-          putTMVar m ()
+        (StopDecoder m) -> do 
+          atomically $ do
+            writeTChan (resultChan dec) StoppingDecoder
+            putTMVar m ()

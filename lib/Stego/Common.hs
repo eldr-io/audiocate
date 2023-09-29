@@ -61,7 +61,7 @@ type Payload = Int32
 -- | Tuple of time and totpPayload that is decoded from each frame
 type DecodedPayload = (Word64, TotpPayload)
 
-type DecodedFrame = ([Int16], DecodedPayload)
+type DecodedFrame = (Int, [Int16], DecodedPayload)
 
 -- | StegoParams instance used to capture parameters
 data StegoParams = StegoParams Secret Word64 Word8 EncodingType Payload
@@ -104,4 +104,4 @@ suitable for encoding/decoding. This is mostly done by assessing if the
 targeted bits are too quiet / low in energy.
 -}
 shouldSkipFrame :: Frame -> Bool
-shouldSkipFrame f = realToFrac (sum (map abs (take 128 f))) < (1E-3 :: Double)
+shouldSkipFrame (_,f) = realToFrac (sum (map abs (take 128 f))) < (1E-2 :: Double)

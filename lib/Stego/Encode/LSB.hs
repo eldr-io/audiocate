@@ -17,7 +17,7 @@ import Stego.Common (TotpPayload)
 TotpPayload into the start of the frame
 -}
 encodeFrame :: Word64 -> TotpPayload -> Frame -> Frame
-encodeFrame time payload frame = encTime ++ enc ++ drop 96 frame
+encodeFrame time payload (i, frame) = (i, encTime ++ enc ++ drop 96 frame)
  where
   tSize = fromJust $ bitSizeMaybe time
   pSize = fromJust $ bitSizeMaybe payload

@@ -85,7 +85,8 @@ stopEncoder enc = do
 
 -- | Enqueues a frame for the encoder to encode
 enqueueFrame :: Encoder -> Frame -> IO ()
-enqueueFrame enc frame = atomically $ writeTQueue (encoderOpQ enc) (EncodeFrame frame)
+enqueueFrame enc frame = do
+  atomically $ writeTQueue (encoderOpQ enc) (EncodeFrame frame)
 
 -- | Used internally by the encoder to call on the appropriate encoding
 -- technique as dictated by the stegoParams
@@ -104,15 +105,16 @@ runEncoder enc = loop
     loop = do
       op <- atomically $ readTQueue (encoderOpQ enc)
       case op of
-        (EncodeFrame f) -> do
+        (EncodeFrame (i,f)) -> do
           time <- getCurrentTime
-          let shouldSkip = shouldSkipFrame f
+          let shouldSkip = shouldSkipFrame (i,f)
           if shouldSkip
             then do
-              atomically $ writeTChan (resultChan enc) (SkippedFrame (replicate (length f) 0))
+              -- atomically $ writeTChan (resultChan enc) (SkippedFrame (i,replicate (length f) 0))
+              atomically $ writeTChan (resultChan enc) (SkippedFrame (i,f))
               loop
             else do
-              let encoded = encodeFrame' (stegoParams enc) time f
+              let encoded = encodeFrame' (stegoParams enc) time (i,f)
               atomically $ writeTChan (resultChan enc) (EncodedFrame encoded)
               loop
         (StopEncoder m) -> atomically $ do
