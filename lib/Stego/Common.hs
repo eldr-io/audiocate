@@ -18,12 +18,14 @@ module Stego.Common (
   word64ToUtcTime,
   readBinWord64,
   readBinWord32,
-  getEncodingType
+  getEncodingType,
+  shouldSkipFrame,
 )
 where
 
+import Data.Audio.Wave (Frame)
 import Data.ByteString qualified as BS
-import Data.Int (Int32, Int16)
+import Data.Int (Int16, Int32)
 import Data.OTP (HashAlgorithm (..), totp, totpCheck)
 import Data.Time.Clock (UTCTime (..))
 import Data.Time.Clock.POSIX (posixSecondsToUTCTime, utcTimeToPOSIXSeconds)
@@ -96,3 +98,10 @@ readBinWord64 = fst . head . readBin
 -- | Reads a provided binary representation into a Word32
 readBinWord32 :: String -> Word32
 readBinWord32 = fst . head . readBin
+
+{- | Filtering function that determines if the provided frame is
+suitable for encoding/decoding. This is mostly done by assessing if the
+targeted bits are too quiet / low in energy.
+-}
+shouldSkipFrame :: Frame -> Bool
+shouldSkipFrame f = realToFrac (sum (map abs (take 128 f))) < (1E-3 :: Double)

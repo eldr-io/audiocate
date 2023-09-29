@@ -3,6 +3,7 @@
 -- - to be encoded and runs a dedicated thread for dequeueing and encoding frames
 module Stego.Encode.Encoder
   ( newEncoder,
+    newEncoderWithQC,
     enqueueFrame,
     stopEncoder,
     getResultChannel,
@@ -11,7 +12,7 @@ module Stego.Encode.Encoder
   )
 where
 
-import Control.Concurrent (forkIO, threadDelay)
+import Control.Concurrent (forkIO)
 import Control.Concurrent.STM
   ( TChan,
     TMVar,
@@ -29,12 +30,16 @@ import Control.Monad (void)
 import Control.Monad.STM (atomically)
 import Data.Audio.Wave (Frame)
 import Data.Time (UTCTime, getCurrentTime)
-import Stego.Common (EncodingType (LsbEncoding), StegoParams (..), calculateTotp, getEncodingType, utcTimeToWord64)
+import Stego.Common (EncodingType (LsbEncoding), StegoParams (..), calculateTotp, getEncodingType, shouldSkipFrame, utcTimeToWord64)
 import Stego.Encode.LSB (encodeFrame)
 
 data EncoderOp = EncodeFrame Frame | StopEncoder (TMVar ())
 
 data EncoderResult = EncodedFrame Frame | SkippedFrame Frame | StoppingEncoder
+
+type EncoderResultList = [EncoderResult]
+
+data EncoderResultStats = ERS !Int !Int
 
 type EncoderOpQ = TQueue EncoderOp
 
@@ -56,7 +61,16 @@ newEncoder stegoParams = do
   void $ forkIO $ runEncoder enc
   return enc
 
--- | Returns a duplicate of the Broadcast result channel used 
+-- | Creates a new encoder that can encode frames using
+-- the provided StegoParams and uses the provided operation 
+-- queue and result channel
+newEncoderWithQC :: StegoParams -> EncoderOpQ -> EncoderResultChan -> IO Encoder
+newEncoderWithQC stegoParams opQ chan = do
+  let enc = Encoder stegoParams opQ chan
+  void $ forkIO $ runEncoder enc
+  return enc
+
+-- | Returns a duplicate of the Broadcast result channel used
 -- by the encoder.
 getResultChannel :: Encoder -> IO (TChan EncoderResult)
 getResultChannel = atomically . dupTChan . resultChan
@@ -92,14 +106,15 @@ runEncoder enc = loop
       case op of
         (EncodeFrame f) -> do
           time <- getCurrentTime
-          let shouldSkip = realToFrac (sum (map abs (take 128 f))) < (1E-3 :: Double)
-          if shouldSkip then do
-            atomically $ writeTChan (resultChan enc) (SkippedFrame (replicate (length f) 0))
-            loop
-          else do
-            let encoded = encodeFrame' (stegoParams enc) time f
-            atomically $ writeTChan (resultChan enc) (EncodedFrame encoded)
-            loop
+          let shouldSkip = shouldSkipFrame f
+          if shouldSkip
+            then do
+              atomically $ writeTChan (resultChan enc) (SkippedFrame (replicate (length f) 0))
+              loop
+            else do
+              let encoded = encodeFrame' (stegoParams enc) time f
+              atomically $ writeTChan (resultChan enc) (EncodedFrame encoded)
+              loop
         (StopEncoder m) -> atomically $ do
           writeTChan (resultChan enc) StoppingEncoder
           putTMVar m ()
