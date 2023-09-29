@@ -28,37 +28,37 @@ doEncodeWaveAudio stegoParams waveAudio = do
   mapM_ (enqueueFrame encoder) frames
   _ <- stopEncoder encoder
   loopDc resD [] (length frames)
- where
-  loopDc resD fs total = do
-    res <- atomically $ readTChan resD
-    case res of
-      (DC.DecodedFrameR (f, _) verified) -> do
-        putStrLn
-          $ "Decoded: "
-          ++ show (length fs + 1)
-          ++ "/"
-          ++ show total
-          ++ " (Verified: "
-          ++ show verified
-          ++ ")"
-        loopDc resD (f : fs) total
-      DC.StoppingDecoder -> do
-        putStrLn "Received stopping decoder"
-        pure (reverse fs)
-      DC.SkippedFrame f -> do
-        loopDc resD (f : fs) total
-  printLoop c fs totalFs = do
-    res <- atomically $ readTChan c
-    case res of
-      StoppingEncoder -> pure ()
-      _ -> do
-        putStrLn
-          $ "Encoded "
-          ++ show (fs + 1)
-          ++ "/"
-          ++ show (length totalFs)
-          ++ " frame(s)."
-        printLoop c (fs + 1) totalFs
+  where
+    loopDc resD fs total = do
+      res <- atomically $ readTChan resD
+      case res of
+        (DC.DecodedFrameR (f, _) verified) -> do
+          putStrLn $
+            "Decoded: "
+              ++ show (length fs + 1)
+              ++ "/"
+              ++ show total
+              ++ " (Verified: "
+              ++ show verified
+              ++ ")"
+          loopDc resD (f : fs) total
+        DC.StoppingDecoder -> do
+          putStrLn "Received stopping decoder"
+          pure (reverse fs)
+        DC.SkippedFrame f -> do
+          loopDc resD (f : fs) total
+    printLoop c fs totalFs = do
+      res <- atomically $ readTChan c
+      case res of
+        StoppingEncoder -> pure ()
+        _ -> do
+          putStrLn $
+            "Encoded "
+              ++ show (fs + 1)
+              ++ "/"
+              ++ show (length totalFs)
+              ++ " frame(s)."
+          printLoop c (fs + 1) totalFs
 
 doDecodeWaveAudio :: StegoParams -> WaveAudio -> IO DC.DecoderResultList
 doDecodeWaveAudio stegoParams waveAudio = do
@@ -71,21 +71,21 @@ doDecodeWaveAudio stegoParams waveAudio = do
   mapM_ (DC.enqueueFrame decoder) frames
   _ <- DC.stopDecoder decoder
   atomically $ takeTMVar m
- where
-  decodeLoop channel fs resultVar = do
-    res <- atomically $ readTChan channel
-    case res of
-      DC.StoppingDecoder -> do
-        putStrLn "Received stopping decoder"
-        atomically $ putTMVar resultVar (reverse fs)
-        pure ()
-      f -> do
-        decodeLoop channel (f : fs) resultVar
+  where
+    decodeLoop channel fs resultVar = do
+      res <- atomically $ readTChan channel
+      case res of
+        DC.StoppingDecoder -> do
+          putStrLn "Received stopping decoder"
+          atomically $ putTMVar resultVar (reverse fs)
+          pure ()
+        f -> do
+          decodeLoop channel (f : fs) resultVar
 
 start :: IO ()
 start = do
-  let inputFile = "test/corpus/sample1.wav"
-  let outputFile = "test/output/sample1_out.wav"
+  let inputFile = "test/corpus/sample2.wav"
+  let outputFile = "test/output/sample2_out.wav"
   doEncodeFile inputFile outputFile
   putStrLn "Time for decode .."
   doDecodeFile outputFile
@@ -125,11 +125,11 @@ doEncodeFile inputFile outputFile = do
       putStrLn $ "Writing encoded file " ++ outputFile ++ "..."
       let wa' =
             WaveAudio
-              { srcFile = outputFile
-              , bitSize = 16
-              , rate = rate wa
-              , channels = channels wa
-              , samples = concat result
+              { srcFile = outputFile,
+                bitSize = 16,
+                rate = rate wa,
+                channels = channels wa,
+                samples = concat result
               }
       write <- runExceptT (waveAudioToFile outputFile wa')
       case write of
