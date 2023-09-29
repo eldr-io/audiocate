@@ -13,8 +13,8 @@ import Data.Audio.Wave (Frame)
 {- | Decodes the provided frame by extracting the various payload
 components
 -}
-decodeFrame :: Frame -> (String, String)
-decodeFrame f =
+decodeFrame :: Frame -> (Int, String, String)
+decodeFrame (i,f) =
   let timePayload = map (last . showFiniteBits) (take 64 f)
       totpPayload = map (last . showFiniteBits) (take 32 (drop 64 f))
-   in (timePayload, totpPayload)
+   in (i, timePayload, totpPayload)
