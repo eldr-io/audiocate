@@ -4,22 +4,25 @@ module Command.Cmd (
   interpretCmd,
 ) where
 
-import Command.DecodeCmd (runDecodeCmd)
-import Command.EncodeCmd (runEncodeCmd)
 import Data.Text qualified as T
 import Data.Text.Encoding (encodeUtf8)
 import Data.Word (Word64)
+
+import Command.DecodeCmd (runDecodeCmd)
+import Command.EncodeCmd (runEncodeCmd)
 import Stego.Common (EncodingType (LsbEncoding), StegoParams (..))
 
 data Command
   = Help
   | Encode String Int FilePath FilePath
   | Decode String Int FilePath
+  | RunGui
 
 instance Show Command where
   show Help = "HELP"
-  show (Encode {}) = "ENCODE"
-  show (Decode {}) = "DECODE"
+  show (Encode{}) = "ENCODE"
+  show (Decode{}) = "DECODE"
+  show RunGui = "GUI"
 
 data CommandReturnCode
   = CmdSuccess
@@ -30,7 +33,7 @@ data CommandReturnCode
 instance Show CommandReturnCode where
   show CmdSuccess = "Command completed successfully."
   show CmdFail = "Command failed."
-  show _ = "Command fault"
+  show _ = "Command unknown or fault"
 
 interpretCmd :: Command -> IO CommandReturnCode
 interpretCmd cmd =
@@ -50,3 +53,5 @@ interpretCmd cmd =
       let stegoParams = StegoParams s t 6 LsbEncoding 123
       runDecodeCmd stegoParams inputFile
       pure CmdSuccess
+    RunGui -> do
+      pure CmdUnknown

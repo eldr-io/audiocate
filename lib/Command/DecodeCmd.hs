@@ -1,21 +1,30 @@
 module Command.DecodeCmd (
- runDecodeCmd,
+  runDecodeCmd,
 ) where
 
-import Stego.Common (StegoParams(..))
-import Data.Audio.Wave (WaveAudio (..), waveAudioFromFile)
-import Stego.Decode.Decoder (DecoderResultList, DecoderResult (StoppingDecoder), getResultStats, newDecoder, getResultChannel, enqueueFrame, stopDecoder)
-import Data.Time (getCurrentTime, diffUTCTime)
-import Control.Monad.Except (runExceptT)
-import Control.Concurrent.STM (newEmptyTMVarIO, atomically, takeTMVar, readTChan, putTMVar)
-import Control.Monad ( void )
-import Data.List (sort)
 import Control.Concurrent (forkIO)
+import Control.Concurrent.STM (atomically, newEmptyTMVarIO, putTMVar, readTChan, takeTMVar)
+import Control.Monad (void)
+import Control.Monad.Except (runExceptT)
+import Data.List (sort)
+import Data.Time (diffUTCTime, getCurrentTime)
+
+import Data.Audio.Wave (WaveAudio (..), waveAudioFromFile)
+import Stego.Common (StegoParams (..))
+import Stego.Decode.Decoder (
+  DecoderResult (StoppingDecoder),
+  DecoderResultList,
+  enqueueFrame,
+  getResultChannel,
+  getResultStats,
+  newDecoder,
+  stopDecoder,
+ )
 
 runDecodeCmd :: StegoParams -> FilePath -> IO ()
 runDecodeCmd stegoParams inputFile = do
   startTime <- getCurrentTime
-  putStrLn $ "Reading audio file " ++ inputFile ++ "..." 
+  putStrLn $ "Reading audio file " ++ inputFile ++ "..."
   audio <- runExceptT (waveAudioFromFile inputFile)
   case audio of
     Left err -> putStrLn err
@@ -49,4 +58,3 @@ doDecodeWaveAudio stegoParams waveAudio = do
         pure ()
       f -> do
         decodeLoop channel (f : fs) resultVar
-
