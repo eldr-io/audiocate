@@ -46,6 +46,9 @@ library
       , Stego.Encode.Encoder
       , Stego.Decode.LSB
       , Stego.Decode.Decoder
+      , Command.Cmd
+      , Command.DecodeCmd
+      , Command.EncodeCmd
 
     -- LANGUAGE extensions used by modules in this package.
     -- other-extensions:

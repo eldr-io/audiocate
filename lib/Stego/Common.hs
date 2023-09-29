@@ -23,7 +23,7 @@ module Stego.Common (
 )
 where
 
-import Data.Audio.Wave (Frame)
+import Data.Audio.Wave (Frame, Frames)
 import Data.ByteString qualified as BS
 import Data.Int (Int16, Int32)
 import Data.OTP (HashAlgorithm (..), totp, totpCheck)
