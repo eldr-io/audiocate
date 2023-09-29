@@ -1,7 +1,8 @@
 module Main (main) where
 
-import Audiocate (Command (..), run, version)
 import Options.Applicative
+
+import Audiocate (Command (..), run, version)
 
 data Opts = Opts
   { optVerboseFlag :: !Bool
