@@ -79,6 +79,7 @@ executable audiocate
     build-depends:
         base >=4.7 && <5 
         , audiocate
+        , optparse-applicative
 
     hs-source-dirs:   app
     default-language: GHC2021

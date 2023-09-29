@@ -34,7 +34,7 @@ runEncodeCmd stegoParams inputFile outputFile = do
       putStrLn $ "\nTotal Frames in file: " ++ show (length $ audioFrames wa)
       let combined = result ++ result2
       print $ DC.getResultStats combined
-      putStrLn $ "Writing encoded file " ++ outputFile ++ "..."
+      putStrLn $ "Writing encoded file to " ++ outputFile ++ "..."
       let wa' =
             WaveAudio
               { srcFile = outputFile
