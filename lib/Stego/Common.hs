@@ -25,7 +25,7 @@ where
 
 import Data.ByteString qualified as BS
 import Data.Int (Int16, Int32)
-import Data.OTP (HashAlgorithm (..), totp, totpCheck)
+import Data.OTP (HashAlgorithm(..), totp, totpCheck)
 import Data.Time.Clock (UTCTime (..))
 import Data.Time.Clock.POSIX (posixSecondsToUTCTime, utcTimeToPOSIXSeconds)
 import Data.Word (Word32, Word64, Word8)

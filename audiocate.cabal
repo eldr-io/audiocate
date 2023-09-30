@@ -22,16 +22,23 @@ extra-source-files:
     CHANGELOG.md
     README.md
 
-library external
-  hs-source-dirs: external
-  exposed-modules: Data.OTP 
+executable audiocate-gui
+  hs-source-dirs: gui
+  main-is: Main.hs
+  ghc-options: -Wall -fno-warn-unused-do-bind -threaded -with-rtsopts=-N
   build-depends: 
     base >=4.7 && <5 
+    , audiocate
     , time
-    , bytestring
-    , cryptohash-sha1 
-    , cryptohash-sha256 
-    , cryptohash-sha512 
+    -- , gi-glib == 2.0.*
+    -- , gi-gtk == 4.0.*
+    -- , gi-adwaita == 1.0.*
+    -- , haskell-gi-base
+    , gi-glib 
+    , gi-gtk
+    , gi-adwaita
+    , haskell-gi-base
+    , directory
   default-language: GHC2021
 
 library
@@ -54,7 +61,6 @@ library
     -- other-extensions:
     build-depends:    
       base >=4.7 && <5 
-      , external
       , HCodecs
       , array
       , bits-show
@@ -64,6 +70,7 @@ library
       , bytestring
       , time
       , text
+      , OTP >= 0.1.0.0
     hs-source-dirs:   lib
     default-language: GHC2021
 

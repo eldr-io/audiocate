@@ -16,13 +16,11 @@ data Command
   = Help
   | Encode String Int FilePath FilePath
   | Decode String Int FilePath
-  | RunGui
 
 instance Show Command where
   show Help = "HELP"
   show (Encode{}) = "ENCODE"
   show (Decode{}) = "DECODE"
-  show RunGui = "GUI"
 
 data CommandReturnCode
   = CmdSuccess
@@ -53,5 +51,3 @@ interpretCmd cmd =
       let stegoParams = StegoParams s t 6 LsbEncoding 123
       runDecodeCmd stegoParams inputFile
       pure CmdSuccess
-    RunGui -> do
-      pure CmdUnknown

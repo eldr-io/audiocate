@@ -13,8 +13,12 @@ main :: IO ()
 main = do
   (opts :: Opts) <- execParser optsParser
   putStrLn $ "\nAudiocate v" ++ version
-  putStrLn $ "\nRunning command " ++ show (optCommand opts) ++ 
-              " (verbose: " ++ show (optVerboseFlag opts) ++ ")\n"
+  putStrLn
+    $ "\nRunning command "
+    ++ show (optCommand opts)
+    ++ " (verbose: "
+    ++ show (optVerboseFlag opts)
+    ++ ")\n"
   rc <- run (optCommand opts)
   print rc
  where
