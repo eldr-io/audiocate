@@ -1,57 +1,32 @@
 {-# LANGUAGE ImplicitParams #-}
-{-# LANGUAGE OverloadedLabels #-}
-{-# LANGUAGE OverloadedRecordDot #-}
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE RecursiveDo #-}
-
 module Main
   ( main,
   )
 where
 
-import Control.Concurrent (forkIO, threadDelay)
-import Control.Monad (void)
-import Data.GI.Base (AttrOp (On, (:=), (:=>)), new)
-import qualified GI.Adw as Adw
-import GI.GLib qualified as GLib
-import GI.Gtk qualified as Gtk
-import System.Environment (getArgs, getProgName)
-
 import Audiocate (version)
+import Control.Monad (void)
+import GI.Adw qualified as Adw
+import System.Environment (getArgs, getProgName)
+import MainWindow (initMainWindow, MainWindow (windowPtr))
 
 activate :: Adw.Application -> IO ()
 activate app = do
-
-  viewStack <- new Adw.ViewStack []
-  viewSwitcher <- new Adw.ViewSwitcher [#policy  := Adw.ViewSwitcherPolicyWide ]
-
-  title <-
-    new
-      Adw.WindowTitle
-      [ #title := "Audiocate",
-        #subtitle := "Encode and Decode audio"
-      ]
-  titlebar <- new Adw.HeaderBar [#titleWidget := viewSwitcher]
-
-
-
-  window <-
-    new
-      Adw.ApplicationWindow
-      [ #application := app,
-        #content := viewStack,
-        #defaultWidth := 400
-      ]
-  window.present
+  putStrLn "activate"
+  mw  <- initMainWindow app
+  putStrLn "activate complete"
+  let w = windowPtr mw
+  w.present
+  putStrLn "after present"
 
 main :: IO ()
 main = do
-  app <-
-    new
-      Adw.Application
-      [ #applicationId := "eldr-io.audiocate.gui",
-        On #activate (activate ?self)
+  app <- Adw.new Adw.Application
+      [ #applicationId Adw.:= "eldr-io.audiocate.gui",
+        Adw.On #activate (activate ?self)
       ]
+  sm <- Adw.getApplicationStyleManager app
+  Adw.setStyleManagerColorScheme sm Adw.ColorSchemeForceLight
   putStrLn $ "Audiocate GUI v" ++ version
   args <- getArgs
   progName <- getProgName
