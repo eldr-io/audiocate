@@ -22,25 +22,6 @@ extra-source-files:
     CHANGELOG.md
     README.md
 
-executable audiocate-gui
-  hs-source-dirs: gui
-  main-is: Main.hs
-  ghc-options: -Wall -fno-warn-unused-do-bind -threaded -with-rtsopts=-N
-  build-depends: 
-    base >=4.7 && <5 
-    , audiocate
-    , time
-    -- , gi-glib == 2.0.*
-    -- , gi-gtk == 4.0.*
-    -- , gi-adwaita == 1.0.*
-    -- , haskell-gi-base
-    , gi-glib 
-    , gi-gtk
-    , gi-adwaita
-    , haskell-gi-base
-    , directory
-  default-language: GHC2021
-
 library
     exposed-modules:  Audiocate
     ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
@@ -78,11 +59,6 @@ executable audiocate
     main-is:          Main.hs
     ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
 
-    -- Modules included in this executable, other than Main.
-    -- other-modules:
-
-    -- LANGUAGE extensions used by modules in this package.
-    -- other-extensions:
     build-depends:
         base >=4.7 && <5 
         , audiocate
@@ -90,6 +66,33 @@ executable audiocate
 
     hs-source-dirs:   app
     default-language: GHC2021
+
+executable audiocate-gui
+  hs-source-dirs: gui
+  c-sources: csrc/resources.c
+  main-is: Main.hs
+  ghc-options: -Wall -fno-warn-unused-do-bind -threaded -with-rtsopts=-N
+  build-depends: 
+    base >=4.7 && <5 
+    , audiocate
+    , time
+    , gi-glib 
+    , gi-gtk
+    , gi-adwaita
+    , gi-gobject
+    , haskell-gi-base
+    , directory
+    , text
+    , mtl
+    , stm
+  other-modules:
+    MainWindow
+    , View.EncodeView
+  default-language: GHC2021
+  default-extensions:
+    OverloadedLabels
+    , OverloadedStrings
+    , OverloadedRecordDot
 
 test-suite audiocate-test
     default-language: GHC2021
