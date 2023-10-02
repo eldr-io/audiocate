@@ -23,12 +23,9 @@ extra-source-files:
     README.md
 
 library
-    exposed-modules:  Audiocate
-    ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
-
-    -- Modules included in this library but not exported.
-    other-modules:
-      Data.Audio.Wave
+    exposed-modules:  
+      Audiocate
+      , Data.Audio.Wave
       , Stego.Common
       , Stego.Encode.LSB
       , Stego.Encode.Encoder
@@ -37,9 +34,7 @@ library
       , Command.Cmd
       , Command.DecodeCmd
       , Command.EncodeCmd
-
-    -- LANGUAGE extensions used by modules in this package.
-    -- other-extensions:
+    ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
     build-depends:    
       base >=4.7 && <5 
       , HCodecs
@@ -80,6 +75,7 @@ executable audiocate-gui
     , gi-gtk
     , gi-adwaita
     , gi-gobject
+    , gi-gio
     , haskell-gi-base
     , directory
     , text
@@ -88,6 +84,7 @@ executable audiocate-gui
   other-modules:
     MainWindow
     , View.EncodeView
+    , View.LoadView
   default-language: GHC2021
   default-extensions:
     OverloadedLabels

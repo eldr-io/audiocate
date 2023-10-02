@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <requires lib="gtk" version="4.0"/>
+  <object class="GtkBox" id="loadFileTopBox">
+    <property name="spacing">35</property>
+    <property name="halign">3</property>
+    <child>
+      <object class="AdwClamp">
+        <property name="maximum-size">650</property>
+        <property name="margin-top">15</property>
+        <property name="tightening-threshold">200</property>
+        <child>
+          <object class="GtkBox">
+            <property name="orientation">1</property>
+            <property name="halign">3</property>
+            <property name="spacing">6</property>
+            <child>
+              <object class="GtkBox">
+                <property name="spacing">6</property>
+                <property name="halign">3</property>
+                <property name="orientation">1</property>
+                <property name="margin-bottom">45</property>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="label" translatable="true">Load file to process</property>
+                    <style>
+                      <class name="title-4"/>
+                    </style>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="label" translatable="true">Use the form below to select a .WAV file to work with</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkBox">
+                    <property name="margin-top">12</property>
+                    <property name="margin-bottom">10</property>
+                    <property name="homogeneous">true</property>
+                    <property name="spacing">18</property>
+                    <child>
+                      <object class="AdwSplitButton" id="selectFileBtn">
+                        <property name="label" translatable="true">Select File</property>
+                        <property name="popover">button_popover</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkLabel" id="loadFileSelectedLbl">
+                        <property name="label" translatable="true">No file selected</property>
+                        <property name="use-markup">true</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkButton">
+                    <child>
+                      <object class="AdwButtonContent" id="loadFileBtn">
+                        <property name="label" translatable="true">Load file</property>
+                        <property name="icon-name">sound-wave-symbolic</property>
+                        <property name="sensitive">false</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkLinkButton">
+                    <property name="label">WAVE File Reference</property>
+                    <property name="uri">https://gnome.pages.gitlab.gnome.org/libadwaita/doc/1.4/class.ButtonContent.html</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+  </object>
+  <object class="GtkPopover" id="button_popover">
+    <child>
+      <object class="GtkBox">
+        <property name="orientation">1</property>
+        <child>
+          <object class="GtkSearchEntry">
+            <property name="placeholder-text" translatable="true">Search documents</property>
+          </object>
+        </child>
+        <child>
+          <object class="AdwStatusPage">
+            <property name="title" translatable="true">No Recent Documents</property>
+            <property name="icon-name">clock-symbolic</property>
+            <property name="width-request">300</property>
+            <property name="height-request">300</property>
+            <style>
+              <class name="compact"/>
+              <class name="dim-label"/>
+            </style>
+          </object>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>

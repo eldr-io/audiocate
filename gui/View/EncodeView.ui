@@ -1,71 +1,120 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
   <requires lib="gtk" version="4.0"/>
-  <object class="GtkBox" id="encFileTopBox">
-    <property name="halign">3</property>
-    <property name="spacing">35</property>
+  <object class="GtkBox" id="encTopBox">
+    <property name="orientation">1</property>
     <child>
-      <object class="AdwClamp" id="encFileTopClamp">
-        <property name="maximum-size">600</property>
-        <property name="margin-top">15</property>
+      <object class="AdwBanner" id="banner">
+        <property name="button-label" translatable="true">Help page</property>
+        <property name="title" translatable="true">No file loaded: load a file before you can use the encoder</property>
+        <property name="revealed">true</property>
+      </object>
+    </child>
+    <child>
+      <object class="AdwClamp" id="encTopClamp">
+        <property name="maximum-size">1000</property>
         <property name="tightening-threshold">200</property>
         <child>
           <object class="GtkBox">
             <property name="orientation">1</property>
-            <property name="halign">3</property>
-            <property name="spacing">6</property>
             <child>
-              <object class="GtkBox">
-                <property name="spacing">6</property>
-                <property name="halign">3</property>
-                <property name="orientation">1</property>
-                <property name="margin-bottom">45</property>
-                <child>
-                  <object class="GtkLabel">
-                    <property name="label" translatable="true">Load file to process</property>
-                    <style>
-                      <class name="title-4"/>
-                    </style>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkLabel">
-                    <property name="label" translatable="true">Use the form below to select a .WAV file to work with</property>
-                  </object>
-                </child>
+              <object class="GtkLabel">
+                <property name="margin-bottom">10</property>
+                <property name="use-markup">true</property>
+                <property name="label"></property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkBox" id="encFileTopBox">
+                <property name="spacing">15</property>
+                <property name="homogeneous">true</property>
                 <child>
                   <object class="GtkBox">
-                    <property name="margin-top">12</property>
-                    <property name="margin-bottom">10</property>
-                    <property name="homogeneous">true</property>
-                    <property name="spacing">18</property>
+                    <property name="spacing">6</property>
+                    <property name="orientation">1</property>
                     <child>
-                      <object class="AdwSplitButton">
-                        <property name="label" translatable="true">Select File</property>
-                        <property name="popover">button_popover</property>
+                      <object class="GtkLabel">
+                        <property name="label" translatable="true">Encoder settings</property>
+                        <style>
+                          <class name="title-4"/>
+                        </style>
                       </object>
                     </child>
                     <child>
                       <object class="GtkLabel">
-                        <property name="label" translatable="true">sample1-test.wav</property>
+                        <property name="label" translatable="true">Configure the encoder settings to use</property>
                       </object>
                     </child>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkButton">
                     <child>
-                      <object class="AdwButtonContent">
-                        <property name="label" translatable="true">Load file</property>
-                        <property name="icon-name">sound-wave-symbolic</property>
+                      <object class="GtkListBox">
+                        <property name="margin-top">10</property>
+                        <property name="selection-mode">0</property>
+                        <style>
+                          <class name="boxed-list"/>
+                        </style>
+                        <child>
+                          <object class="AdwEntryRow">
+                            <property name="title" translatable="true">Secret Key </property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="AdwEntryRow">
+                            <property name="title" translatable="true">Payload</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="AdwEntryRow">
+                            <property name="title" translatable="true">Seconds valid</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="AdwActionRow">
+                            <property name="title" translatable="true">Destination File</property>
+                            <child type="suffix">
+                              <object class="GtkButton" id="encodeDestinationFileBtn">
+                                <property name="margin-top">10</property>
+                                <property name="margin-bottom">10</property>
+                                <child>
+                                  <object class="AdwButtonContent">
+                                    <property name="label" translatable="true">Choose file</property>
+                                    <property name="icon-name">text-symbolic</property>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
                       </object>
                     </child>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkLinkButton">
-                    <property name="label">WAVE File Reference</property>
-                    <property name="uri">https://gnome.pages.gitlab.gnome.org/libadwaita/doc/1.4/class.ButtonContent.html</property>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="spacing">5</property>
+                        <property name="margin-top">10</property>
+                        <child>
+                          <object class="GtkButton">
+                            <property name="width-request">250</property>
+                            <child>
+                              <object class="AdwButtonContent">
+                                <property name="label" translatable="true">Run Encoder</property>
+                                <property name="icon-name">attach-audio-symbolic</property>
+                              </object>
+                            </child>
+                            <style>
+                              <class name="success"/>
+                            </style>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkButton">
+                            <property name="icon-name">cross-filled-large-symbolic</property>
+                            <property name="sensitive">false</property>
+                            <style>
+                              <class name="error"/>
+                            </style>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
                   </object>
                 </child>
                 <child>
@@ -74,7 +123,7 @@
                     <property name="orientation">1</property>
                     <child>
                       <object class="GtkLabel">
-                        <property name="label" translatable="true">File properties</property>
+                        <property name="label" translatable="true">Loaded file</property>
                         <style>
                           <class name="title-4"/>
                         </style>
@@ -164,30 +213,51 @@
                 </child>
               </object>
             </child>
-          </object>
-        </child>
-      </object>
-    </child>
-  </object>
-  <object class="GtkPopover" id="button_popover">
-    <child>
-      <object class="GtkBox">
-        <property name="orientation">1</property>
-        <child>
-          <object class="GtkSearchEntry">
-            <property name="placeholder-text" translatable="true">Search documents</property>
-          </object>
-        </child>
-        <child>
-          <object class="AdwStatusPage">
-            <property name="title" translatable="true">No Recent Documents</property>
-            <property name="icon-name">clock-symbolic</property>
-            <property name="width-request">300</property>
-            <property name="height-request">300</property>
-            <style>
-              <class name="compact"/>
-              <class name="dim-label"/>
-            </style>
+            <child>
+              <object class="GtkSeparator">
+                <property name="margin-top">25</property>
+                <property name="margin-bottom">25</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="label">&lt;b&gt;Audio frames&lt;/b&gt;</property>
+                <property name="use-markup">true</property>
+                <style>
+                  <class name="title-5"/>
+                </style>
+              </object>
+            </child>
+            <child>
+              <object class="GtkScrolledWindow" id="scrolled_window">
+                <property name="margin-bottom">24</property>
+                <property name="margin-top">24</property>
+                <property name="has-frame">true</property>
+                <property name="propagate-natural-height">true</property>
+                <property name="max-content-height">300</property>
+                <child>
+                  <object class="GtkBox" id="container">
+                    <property name="homogeneous">true</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkScrolledWindow">
+                <property name="height-request">100</property>
+                <child>
+                  <object class="GtkTextView" id="textview">
+                    <property name="bottom-margin">12</property>
+                    <property name="left-margin">12</property>
+                    <property name="right-margin">12</property>
+                    <property name="top-margin">12</property>
+                    <property name="editable">false</property>
+                    <property name="cursor-visible">true</property>
+                    <property name="wrap-mode">1</property>
+                  </object>
+                </child>
+              </object>
+            </child>
           </object>
         </child>
       </object>
