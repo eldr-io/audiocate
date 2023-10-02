@@ -6,6 +6,7 @@ import GI.Adw (AttrOp ((:=)), new)
 import GI.Adw qualified as Adw
 import GI.Gtk qualified as Gtk
 import View.EncodeView (EncodeView (..), initEncodeView)
+import View.LoadView (LoadView (..), initLoadView)
 
 data MainWindow = MainWindow
   { application :: !Adw.Application,
@@ -16,25 +17,27 @@ data MainWindow = MainWindow
 initMainWindow :: Adw.Application -> IO MainWindow
 initMainWindow app = do
   content <- new Gtk.Box [#orientation := Gtk.OrientationVertical]
-  adjustment <-
+  stack <- new Adw.ViewStack [#hexpand := True]
+
+  window <-
     new
-      Gtk.Adjustment
-      [ #value := 50,
-        #lower := 0,
-        #upper := 100,
-        #stepIncrement := 1
+      Adw.ApplicationWindow
+      [ #application := app,
+        #content := content,
+        #defaultWidth := 1220,
+        #defaultHeight := 760
       ]
-  slider <- new Gtk.Scale [#adjustment := adjustment, #drawValue := True]
-  stack <- new Adw.ViewStack []
 
   label1 <- new Gtk.Label [#label := "Decode", #hexpand := True]
-  label2 <- new Gtk.Label [#label := "Analyse", #hexpand := True]
 
   let welcomeTitle = "Audiocate " <> version
-  loadFileBtn <- new Gtk.Button [#label := "Open file"]
+
   encodeView <- initEncodeView
   let encViewBox = encodeViewBox encodeView
-  clamp <- new Adw.Clamp [#maximumSize := 600, #child := encViewBox]
+
+  loadView <- initLoadView window
+  let lViewBox = loadViewBox loadView
+
   welcomePage <-
     new
       Adw.StatusPage
@@ -42,13 +45,13 @@ initMainWindow app = do
         #title := T.pack welcomeTitle,
         #description := "Audio encoding authentication and "
           <> "validation library for verifying audio as being from a trusted source",
-        #child := clamp
+        #child := lViewBox
       ]
 
   Adw.viewStackAddTitledWithIcon stack welcomePage (Just "welcome-page") "Load" "audio-x-generic"
 
 
-  Adw.viewStackAddTitledWithIcon stack loadFileBtn (Just "encode-page") "Encode" "mail-send-symbolic"
+  Adw.viewStackAddTitledWithIcon stack encViewBox (Just "encode-page") "Encode" "mail-send-symbolic"
   Adw.viewStackAddTitledWithIcon stack label1 (Just "decode-page") "Decode" "mail-send-symbolic"
 
   viewSwitcherBar <- new Adw.ViewSwitcherBar [#stack := stack]
@@ -62,13 +65,5 @@ initMainWindow app = do
   content.append stack
   content.append viewSwitcherBar
 
-  window <-
-    new
-      Adw.ApplicationWindow
-      [ #application := app,
-        #content := content,
-        #defaultWidth := 820,
-        #defaultHeight := 550
-      ]
   let mw = MainWindow app window encodeView
   pure mw
