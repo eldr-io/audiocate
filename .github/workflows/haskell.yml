@@ -33,10 +33,12 @@ jobs:
           ${{ runner.os }}-build-
           ${{ runner.os }}-
 
-    - name: Install dependencies
+    - name: Install base dependencies
       run: |
         sudo apt-get update 
-        sudo apt-get install -y libsdl2-dev libgirepository1.0-dev libunwind-dev
+        sudo apt-get install -y libsdl2-dev libgirepository1.0-dev libunwind-dev libwebkit2gtk-4.0-dev libgtksourceview-3.0-dev
+    - name: Install cabal dependencies
+      run: |
         cabal update
         cabal build --only-dependencies --enable-tests --enable-benchmarks
     - name: Build
