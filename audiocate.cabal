@@ -46,7 +46,7 @@ library
       , bytestring
       , time
       , text
-      , OTP >= 0.1.0.0
+      , OTP
     hs-source-dirs:   lib
     default-language: GHC2021
 
