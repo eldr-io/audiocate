@@ -1,2 +1,2 @@
-allow-newer: base, time, bytestring
+allow-newer: .
 packages: .
