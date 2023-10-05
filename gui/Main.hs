@@ -1,6 +1,6 @@
 {-# LANGUAGE ImplicitParams #-}
 module Main
-  ( main,
+  ( main
   )
 where
 
@@ -8,16 +8,18 @@ import Audiocate (version)
 import Control.Monad (void)
 import GI.Adw qualified as Adw
 import System.Environment (getArgs, getProgName)
-import MainWindow (initMainWindow, MainWindow (windowPtr))
+import MainWindow (initMainWindow, MainWindow (window))
+import Data.Audio.Wave (WaveAudio)
+import Control.Concurrent (newEmptyMVar, MVar)
+import AppState (AppState (..), newAppState)
+
 
 activate :: Adw.Application -> IO ()
 activate app = do
-  putStrLn "activate"
-  mw  <- initMainWindow app
-  putStrLn "activate complete"
-  let w = windowPtr mw
+  appState <- newAppState
+  mw  <- initMainWindow app appState
+  let w = window mw
   w.present
-  putStrLn "after present"
 
 main :: IO ()
 main = do

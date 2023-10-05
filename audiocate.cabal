@@ -85,6 +85,7 @@ executable audiocate-gui
     MainWindow
     , View.EncodeView
     , View.LoadView
+    , AppState
   default-language: GHC2021
   default-extensions:
     OverloadedLabels
