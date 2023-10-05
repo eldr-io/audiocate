@@ -35,6 +35,8 @@ jobs:
 
     - name: Install dependencies
       run: |
+        sudo apt-get update 
+        sudo apt-get install -y libsdl2-dev libgirepository1.0-dev libunwind-dev
         cabal update
         cabal build --only-dependencies --enable-tests --enable-benchmarks
     - name: Build
