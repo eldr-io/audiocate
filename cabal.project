@@ -1,2 +1,2 @@
-allow-newer: .
+allow-newer: all
 packages: .
