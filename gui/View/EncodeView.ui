@@ -145,9 +145,8 @@
                           <object class="AdwActionRow">
                             <property name="title" translatable="true">Source</property>
                             <child type="suffix">
-                              <object class="GtkLabel">
-                                <property name="label" translatable="true">sample1-test.wav</property>
-                                <property name="name">encFilePropSrcLbl</property>
+                              <object class="GtkLabel" id="encFilePropSrcLbl">
+                                <property name="label" translatable="true" ></property>
                               </object>
                             </child>
                           </object>
@@ -157,8 +156,8 @@
                             <property name="title" translatable="true">Rate</property>
                             <property name="subtitle" translatable="true">Frequency</property>
                             <child type="suffix">
-                              <object class="GtkLabel">
-                                <property name="label" translatable="true">44.1 kHz</property>
+                              <object class="GtkLabel" id="encFilePropRateLbl">
+                                <property name="label" translatable="true"></property>
                               </object>
                             </child>
                           </object>
@@ -168,8 +167,8 @@
                             <property name="title" translatable="true">Bit-rate</property>
                             <property name="subtitle" translatable="true"></property>
                             <child type="suffix">
-                              <object class="GtkLabel">
-                                <property name="label" translatable="true">16-bit</property>
+                              <object class="GtkLabel" id="encFilePropBitRateLbl">
+                                <property name="label" translatable="true"></property>
                               </object>
                             </child>
                           </object>
@@ -179,8 +178,8 @@
                             <property name="title" translatable="true">Samples</property>
                             <property name="subtitle" translatable="true">Number of samples</property>
                             <child type="suffix">
-                              <object class="GtkLabel">
-                                <property name="label" translatable="true">1092512</property>
+                              <object class="GtkLabel" id="encFilePropSamplesLbl">
+                                <property name="label" translatable="true"></property>
                               </object>
                             </child>
                           </object>
@@ -190,8 +189,8 @@
                             <property name="title" translatable="true">Frames</property>
                             <property name="subtitle" translatable="true">Number of frames</property>
                             <child type="suffix">
-                              <object class="GtkLabel">
-                                <property name="label" translatable="true">128</property>
+                              <object class="GtkLabel" id="encFilePropNumFramesLbl">
+                                <property name="label" translatable="true"></property>
                               </object>
                             </child>
                           </object>
@@ -201,8 +200,8 @@
                             <property name="title" translatable="true">Channels</property>
                             <property name="subtitle" translatable="true">Audio channels in file</property>
                             <child type="suffix">
-                              <object class="GtkLabel">
-                                <property name="label" translatable="true">1 (Mono)</property>
+                              <object class="GtkLabel" id="encFilePropNumChannelsLbl">
+                                <property name="label" translatable="true"></property>
                               </object>
                             </child>
                           </object>
