@@ -6,8 +6,10 @@ import Data.Text qualified as T
 import GI.Adw (AttrOp ((:=)), new)
 import GI.Adw qualified as Adw
 import GI.Gtk qualified as Gtk
-import View.EncodeView (EncodeView (..), initEncodeView)
+import View.EncodeView (EncodeView (..), initEncodeView, updateEncodeViewAudioFileLoaded)
 import View.LoadView (LoadView (..), initLoadView)
+import Control.Concurrent (newEmptyMVar, forkIO, takeMVar, MVar)
+import Control.Monad (forever)
 
 data MainWindow = MainWindow
   { application :: !Adw.Application
@@ -17,6 +19,11 @@ data MainWindow = MainWindow
   , encodeView :: !EncodeView
   , loadView :: !LoadView
   }
+
+updateEncodeViewFileLoad :: MVar Bool -> AppState -> EncodeView -> IO ()
+updateEncodeViewFileLoad fileLoadedMVar state encodeView = do
+  _ <- takeMVar fileLoadedMVar
+  updateEncodeViewAudioFileLoaded state encodeView
 
 initMainWindow :: Adw.Application -> AppState -> IO MainWindow
 initMainWindow app state = do
@@ -37,10 +44,14 @@ initMainWindow app state = do
 
   let welcomeTitle = "Audiocate " <> version
 
-  encodeView <- initEncodeView
+  encodeView <- initEncodeView state
   let encViewBox = encodeViewBox encodeView
 
-  loadView <- initLoadView window state overlay
+  fileLoadedMVar <- newEmptyMVar
+
+  _ <- forkIO (forever $ updateEncodeViewFileLoad fileLoadedMVar state encodeView)
+
+  loadView <- initLoadView window state overlay fileLoadedMVar
   let lViewBox = loadViewBox loadView
 
   welcomePage <-

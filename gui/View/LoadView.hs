@@ -5,7 +5,7 @@ module View.LoadView
 where
 
 import AppState (AppState (..), AppStateLoadedAudio (..))
-import Control.Concurrent (MVar, newEmptyMVar, putMVar, takeMVar, tryReadMVar, tryTakeMVar, readMVar)
+import Control.Concurrent (MVar, newEmptyMVar, putMVar, readMVar, tryReadMVar, tryTakeMVar)
 import Control.Monad.Except (runExceptT)
 import Data.Audio.Wave (WaveAudio, waveAudioFromFile)
 import Data.GI.Base (castTo)
@@ -57,8 +57,8 @@ handleLoadFileBtnClicked lv = do
       runExceptT $ waveAudioFromFile path
 
 -- | Initialises the Load view and returns the state object
-initLoadView :: Adw.ApplicationWindow -> AppState -> Adw.ToastOverlay -> IO LoadView
-initLoadView window state overlay = do
+initLoadView :: Adw.ApplicationWindow -> AppState -> Adw.ToastOverlay -> MVar Bool -> IO LoadView
+initLoadView window state overlay fileLoadMVar = do
   builder <- Gtk.builderNewFromResource "/gui/View/LoadView.ui"
   loadViewBox <- Gtk.builderGetObject builder "loadFileTopBox"
   box <- fromJust <$> castTo Gtk.Box (fromJust loadViewBox)
@@ -94,19 +94,26 @@ initLoadView window state overlay = do
     audio <- handleLoadFileBtnClicked lv
     case audio of
       Left err -> do
-        toast <- new Adw.Toast [
-          #timeout := 2, 
-          #title := T.pack ("Failed to load audio file " <> err)]
+        toast <-
+          new
+            Adw.Toast
+            [ #timeout := 2,
+              #title := T.pack ("Failed to load audio file " <> err)
+            ]
         toastOverlayAddToast overlay toast
       Right wa -> do
-        -- update general appstate
         _ <- tryTakeMVar (loadedAudio state)
         filePath <- readMVar (loadedFilePath lv)
         let la = AppStateLoadedAudio wa True filePath
         putMVar (loadedAudio state) la
-        toast <- new Adw.Toast [
-          #timeout := 1, 
-          #title := T.pack ("Successfully loaded audio file " <> filePath)]
+        toast <-
+          new
+            Adw.Toast
+            [ #timeout := 1,
+              #title := T.pack ("Successfully loaded audio file " <> filePath)
+            ]
         toastOverlayAddToast overlay toast
+        putStrLn "Setting fileLoadMVar"
+        putMVar fileLoadMVar True
 
   pure lv

@@ -59,7 +59,7 @@
                       <object class="AdwButtonContent">
                         <property name="label" translatable="true">Load file</property>
                         <property name="icon-name">sound-wave-symbolic</property>
-                        <property name="sensitive">false</property>
+                        <property name="sensitive">true</property>
                       </object>
                     </child>
                   </object>
