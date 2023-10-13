@@ -53,17 +53,17 @@
                           <class name="boxed-list"/>
                         </style>
                         <child>
-                          <object class="AdwEntryRow">
+                          <object class="AdwEntryRow" id="secretKeyEntryRow">
                             <property name="title" translatable="true">Secret Key </property>
                           </object>
                         </child>
                         <child>
-                          <object class="AdwEntryRow">
+                          <object class="AdwEntryRow" id="payloadEntryRow">
                             <property name="title" translatable="true">Payload</property>
                           </object>
                         </child>
                         <child>
-                          <object class="AdwEntryRow">
+                          <object class="AdwEntryRow" id="secondsValidEntryRow">
                             <property name="title" translatable="true">Seconds valid</property>
                           </object>
                         </child>
@@ -91,8 +91,9 @@
                         <property name="spacing">5</property>
                         <property name="margin-top">10</property>
                         <child>
-                          <object class="GtkButton">
+                          <object class="GtkButton" id="runEncoderBtn">
                             <property name="width-request">250</property>
+                            <property name="sensitive">False</property>
                             <child>
                               <object class="AdwButtonContent">
                                 <property name="label" translatable="true">Run Encoder</property>
