@@ -1,48 +1,135 @@
-module View.EncodeView (
-  EncodeView (..),
-  initEncodeView,
-  updateEncodeViewAudioFileLoaded,
-)
+module View.EncodeView
+  ( EncodeView (..),
+    initEncodeView,
+    updateEncodeViewAudioFileLoaded,
+  )
 where
 
 import AppState (AppState (loadedAudio), AppStateLoadedAudio (loadedAudioWave))
+import Control.Concurrent (readMVar)
+import Data.Audio.Wave (WaveAudio (..))
 import Data.GI.Base
 import Data.Maybe (fromJust)
 import Data.Text qualified as T
+import GI.Adw qualified as Adw
 import GI.Gtk qualified as Gtk
-import Control.Concurrent (readMVar)
-import Data.Audio.Wave (WaveAudio(..))
+import Data.Word (Word64)
+import Data.Text.Encoding (encodeUtf8)
+import Stego.Common (StegoParams(..), EncodingType(LsbEncoding))
+import Command.EncodeCmd (runEncodeCmd)
 
 data EncodeView = EncodeView
-  { title :: T.Text
-  , id :: T.Text
-  , appState :: AppState
-  , encodeViewBox :: !Gtk.Box
-  , encFilePropSrcLbl :: !Gtk.Label
-  -- , encFilePropRateLbl :: !Gtk.Label
-  -- , encFilePropBitRateLbl :: !Gtk.Label
-  -- , encFilePropSamplesLbl :: !Gtk.Label
-  -- , encFilePropNumFramesLbl :: !Gtk.Label
-  -- , encFilePropNumChannelsLbl :: !Gtk.Label
+  { title :: T.Text,
+    id :: T.Text,
+    appState :: AppState,
+    encodeViewBox :: !Gtk.Box,
+    topBanner :: !Adw.Banner,
+    encFilePropSrcLbl :: !Gtk.Label,
+    encFilePropRateLbl :: !Gtk.Label,
+    encFilePropBitRateLbl :: !Gtk.Label,
+    encFilePropSamplesLbl :: !Gtk.Label,
+    encFilePropNumFramesLbl :: !Gtk.Label,
+    encFilePropNumChannelsLbl :: !Gtk.Label,
+    secretKeyEntryRow :: !Adw.EntryRow,
+    -- payloadEntryRow :: !Adw.EntryRow,
+    secondsValidEntryRow :: !Adw.EntryRow,
+    runEncoderBtn :: !Gtk.Button
   }
 
+-- | Updates the EncodeView listbox with the properties of the loaded
+-- newly audio file
 updateEncodeViewAudioFileLoaded :: AppState -> EncodeView -> IO ()
 updateEncodeViewAudioFileLoaded appState encodeView = do
-  putStrLn "update encodeview called"
   audio <- readMVar $ loadedAudio appState
   let wa = loadedAudioWave audio
   let srcLbl = encFilePropSrcLbl encodeView
   Gtk.labelSetLabel srcLbl (T.pack (srcFile wa))
+  let rateLbl = encFilePropRateLbl encodeView
+  Gtk.labelSetLabel rateLbl (T.pack $ show (rate wa))
+  let bitRateLbl = encFilePropBitRateLbl encodeView
+  Gtk.labelSetLabel bitRateLbl (T.pack $ show (bitSize wa))
+  let samplesLbl = encFilePropSamplesLbl encodeView
+  Gtk.labelSetLabel samplesLbl (T.pack $ show (length $ samples wa))
+  let numFramesLbl = encFilePropNumFramesLbl encodeView
+  Gtk.labelSetLabel numFramesLbl (T.pack $ show (length $ audioFrames wa))
+  let numChannelsLbl = encFilePropNumChannelsLbl encodeView
+  Gtk.labelSetLabel numChannelsLbl (T.pack $ show (channels wa))
+  let banner = topBanner encodeView
+  Adw.bannerSetRevealed banner False
+  let runEncodeBtn = runEncoderBtn encodeView 
+  Gtk.setWidgetSensitive runEncodeBtn True
 
+-- | Handler for the onClicked event of the RunEncoderBtn
+onEncodeBtnClicked :: AppState -> EncodeView -> IO ()
+onEncodeBtnClicked appState encodeView = do
+  putStrLn "encode btn clicked"
+  audio <- readMVar $ loadedAudio appState
+  let inputFile = srcFile $ loadedAudioWave audio
+  let secretKey = secretKeyEntryRow encodeView
+  secret <- Gtk.editableGetText secretKey
+  secondsValid <- Gtk.editableGetText (secondsValidEntryRow encodeView)
+  print secret
+  print secondsValid
+  let secondsValidInt :: Int = read (T.unpack secondsValid)
+  print secondsValidInt
+  -- do encode
+  let s = encodeUtf8 secret
+  let t :: Word64 = fromIntegral secondsValidInt
+  let stegoParams = StegoParams s t 6 LsbEncoding 123
+  runEncodeCmd stegoParams inputFile "tmp.wav"
 
+-- | Initialises the encodeView by loading the .ui resource and creating
+-- the EncodeView data instance
 initEncodeView :: AppState -> IO EncodeView
 initEncodeView appState = do
   builder <- Gtk.builderNewFromResource "/gui/View/EncodeView.ui"
   encodeBin <- Gtk.builderGetObject builder "encTopBox"
-  bin <- castTo Gtk.Box (fromJust encodeBin)
+  bin <- fromJust <$> castTo Gtk.Box (fromJust encodeBin)
 
+  -- build banner instance
+  bannerPtr <- fromJust <$> Gtk.builderGetObject builder "banner"
+  banner <- fromJust <$> castTo Adw.Banner bannerPtr
+
+  -- build Label instances
   encFilePropSrcLblPtr <- fromJust <$> Gtk.builderGetObject builder "encFilePropSrcLbl"
   encFilePropSrcLbl <- fromJust <$> castTo Gtk.Label encFilePropSrcLblPtr
-  pure
-    $ EncodeView "Encode" "encodeView" appState (fromJust bin)
-    encFilePropSrcLbl
+  encFilePropRateLblPtr <- fromJust <$> Gtk.builderGetObject builder "encFilePropRateLbl"
+  encFilePropRateLbl <- fromJust <$> castTo Gtk.Label encFilePropRateLblPtr
+  encFilePropBitRateLblPtr <- fromJust <$> Gtk.builderGetObject builder "encFilePropBitRateLbl"
+  encFilePropBitRateLbl <- fromJust <$> castTo Gtk.Label encFilePropBitRateLblPtr
+  encFilePropSamplesLblPtr <- fromJust <$> Gtk.builderGetObject builder "encFilePropSamplesLbl"
+  encFilePropSamplesLbl <- fromJust <$> castTo Gtk.Label encFilePropSamplesLblPtr
+  encFilePropNumFramesLblPtr <- fromJust <$> Gtk.builderGetObject builder "encFilePropNumFramesLbl"
+  encFilePropNumFramesLbl <- fromJust <$> castTo Gtk.Label encFilePropNumFramesLblPtr
+  encFilePropNumChannelsLblPtr <- fromJust <$> Gtk.builderGetObject builder "encFilePropNumChannelsLbl"
+  encFilePropNumChannelsLbl <- fromJust <$> castTo Gtk.Label encFilePropNumChannelsLblPtr
+  -- build EntryRow instances
+  secretKeyEntryRowPtr <- fromJust <$> Gtk.builderGetObject builder "secretKeyEntryRow"
+  secretKeyEntryRow <- fromJust <$> castTo Adw.EntryRow secretKeyEntryRowPtr
+  secondsValidEntryRowPtr <- fromJust <$> Gtk.builderGetObject builder "secondsValidEntryRow"
+  secondsValidEntryRow <- fromJust <$> castTo Adw.EntryRow secondsValidEntryRowPtr
+  -- build button instances
+  runEncoderBtnPtr <- fromJust <$> Gtk.builderGetObject builder "runEncoderBtn"
+  runEncoderBtn <- fromJust <$> castTo Gtk.Button runEncoderBtnPtr
+
+  let ev =
+        EncodeView
+          "Encode"
+          "encodeView"
+          appState
+          bin
+          banner
+          encFilePropSrcLbl
+          encFilePropRateLbl
+          encFilePropBitRateLbl
+          encFilePropSamplesLbl
+          encFilePropNumFramesLbl
+          encFilePropNumChannelsLbl
+          secretKeyEntryRow
+          secondsValidEntryRow
+          runEncoderBtn
+
+  Adw.after runEncoderBtn #clicked $ do
+    onEncodeBtnClicked appState ev
+
+  pure ev
