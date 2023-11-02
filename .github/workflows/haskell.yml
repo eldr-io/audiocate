@@ -36,7 +36,7 @@ jobs:
     - name: Install base dependencies
       run: |
         sudo apt-get update 
-        sudo apt-get install -y libsdl2-dev libgirepository1.0-dev libunwind-dev libwebkit2gtk-4.0-dev libgtksourceview-3.0-dev
+        sudo apt-get install -y libsdl2-dev libgirepository1.0-dev libwebkit2gtk-4.0-dev libgtksourceview-3.0-dev libadwaita-1-dev
     - name: Install cabal dependencies
       run: |
         cabal update
