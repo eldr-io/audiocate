@@ -44,7 +44,7 @@ initMainWindow app state = do
 
   let welcomeTitle = "Audiocate " <> version
 
-  encodeView <- initEncodeView state
+  encodeView <- initEncodeView state overlay
   let encViewBox = encodeViewBox encodeView
 
   fileLoadedMVar <- newEmptyMVar

@@ -33,7 +33,8 @@ data EncodeView = EncodeView
     secretKeyEntryRow :: !Adw.EntryRow,
     -- payloadEntryRow :: !Adw.EntryRow,
     secondsValidEntryRow :: !Adw.EntryRow,
-    runEncoderBtn :: !Gtk.Button
+    runEncoderBtn :: !Gtk.Button,
+    toastOverlay :: !Adw.ToastOverlay
   }
 
 -- | Updates the EncodeView listbox with the properties of the loaded
@@ -71,17 +72,37 @@ onEncodeBtnClicked appState encodeView = do
   print secret
   print secondsValid
   let secondsValidInt :: Int = read (T.unpack secondsValid)
-  print secondsValidInt
-  -- do encode
-  let s = encodeUtf8 secret
-  let t :: Word64 = fromIntegral secondsValidInt
-  let stegoParams = StegoParams s t 6 LsbEncoding 123
-  runEncodeCmd stegoParams inputFile "tmp.wav"
+  if secret == "" then do
+    putStrLn "invalid secret specified"
+    toast <-
+      new
+        Adw.Toast
+        [ #timeout := 2,
+          #title := "Invalid secret specified. Please specify a valid Secret Key."
+        ]
+    Adw.toastOverlayAddToast (toastOverlay encodeView) toast
+    pure ()
+  else if secondsValid == "" || secondsValidInt < 1 then do
+    putStrLn "invalid seconds valid"
+    toast <-
+      new
+        Adw.Toast
+        [ #timeout := 2,
+          #title := "Invalid seconds valid. Please specify the validity seconds window."
+        ]
+    Adw.toastOverlayAddToast (toastOverlay encodeView) toast
+    pure ()
+  else do
+    -- do encode
+    let s = encodeUtf8 secret
+    let t :: Word64 = fromIntegral secondsValidInt
+    let stegoParams = StegoParams s t 6 LsbEncoding 123
+    runEncodeCmd stegoParams inputFile "tmp.wav"
 
 -- | Initialises the encodeView by loading the .ui resource and creating
 -- the EncodeView data instance
-initEncodeView :: AppState -> IO EncodeView
-initEncodeView appState = do
+initEncodeView :: AppState -> Adw.ToastOverlay -> IO EncodeView
+initEncodeView appState overlay = do
   builder <- Gtk.builderNewFromResource "/gui/View/EncodeView.ui"
   encodeBin <- Gtk.builderGetObject builder "encTopBox"
   bin <- fromJust <$> castTo Gtk.Box (fromJust encodeBin)
@@ -112,6 +133,7 @@ initEncodeView appState = do
   runEncoderBtnPtr <- fromJust <$> Gtk.builderGetObject builder "runEncoderBtn"
   runEncoderBtn <- fromJust <$> castTo Gtk.Button runEncoderBtnPtr
 
+  -- build eventView state ADT
   let ev =
         EncodeView
           "Encode"
@@ -128,7 +150,9 @@ initEncodeView appState = do
           secretKeyEntryRow
           secondsValidEntryRow
           runEncoderBtn
+          overlay
 
+  -- | register event handlers
   Adw.after runEncoderBtn #clicked $ do
     onEncodeBtnClicked appState ev
 
