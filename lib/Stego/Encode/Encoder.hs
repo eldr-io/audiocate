@@ -8,6 +8,7 @@ module Stego.Encode.Encoder (
   enqueueFrame,
   stopEncoder,
   getResultChannel,
+  Encoder (..),
   EncoderResult (..),
   EncoderResultChan,
 )
