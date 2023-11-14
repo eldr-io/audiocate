@@ -97,11 +97,15 @@ test-suite audiocate-test
     type:             exitcode-stdio-1.0
     hs-source-dirs:   test
     main-is:          Spec.hs
+    other-modules:
+      EncodeSpec
     ghc-options:
         -O -threaded -rtsopts -with-rtsopts=-N
     build-tool-depends:
       hspec-discover:hspec-discover
     build-depends:    
         base >=4.7 && <5 
+      , audiocate
+      , text
       , hspec
       , hspec-discover

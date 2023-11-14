@@ -58,7 +58,7 @@ data DecoderResult
   = DecodedFrameR DecodedFrame Bool
   | SkippedFrame Frame
   | StoppingDecoder
-  deriving (Eq)
+  deriving (Show, Eq)
 
 instance Ord DecoderResult where
   compare :: DecoderResult -> DecoderResult -> Ordering
@@ -187,7 +187,6 @@ runDecoder dec = loop
     op <- atomically $ readTQueue (opQ dec)
     case op of
       (DecodeFrame f) -> do
-        -- putStrLn $ "received DecodeFrame" ++ show (fst f)
         let shouldSkip = shouldSkipFrame f
         if shouldSkip
           then do

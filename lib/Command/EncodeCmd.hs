@@ -1,5 +1,6 @@
 module Command.EncodeCmd (
   runEncodeCmd,
+  doEncodeFramesWithEncoder
 ) where
 
 import Control.Concurrent (forkIO)
@@ -19,6 +20,7 @@ import Data.Audio.Wave (
 import Stego.Common (StegoParams)
 import Stego.Decode.Decoder qualified as DC
 import Stego.Encode.Encoder (
+  Encoder (..),
   EncoderResult (..),
   enqueueFrame,
   getResultChannel,
@@ -93,3 +95,26 @@ doEncodeFrames stegoParams frames = do
         pure ()
       _ -> do
         printLoop c (fs + 1) totalFs
+
+-- | Performs an Encoding on the provided Frames using the provided Encoder instance
+doEncodeFramesWithEncoder :: Encoder -> Frames -> IO DC.DecoderResultList
+doEncodeFramesWithEncoder encoder frames = do
+  let stegoPs = stegoParams encoder
+  resC <- getResultChannel encoder
+  decoder <- DC.newDecoder stegoPs
+  void $ DC.mapDecoderOpQToResultChan decoder resC
+  resDecodeChan <- DC.getResultChannel decoder
+  decodeMVar <- newEmptyTMVarIO
+  void $ forkIO $ decoderResultLoop resDecodeChan [] (length frames) decodeMVar
+  mapM_ (enqueueFrame encoder) frames
+  stopMVar <- stopEncoder encoder
+  void $ atomically $ takeTMVar stopMVar
+  atomically $ takeTMVar decodeMVar
+ where
+  decoderResultLoop resDChan fs total t = do
+    res <- atomically $ readTChan resDChan
+    case res of
+      DC.StoppingDecoder -> do
+        void $ atomically $ putTMVar t fs
+      f -> do
+        decoderResultLoop resDChan (f : fs) total t
