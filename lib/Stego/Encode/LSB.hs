@@ -2,14 +2,11 @@
 -- - the Least Significant Bit (LSB) approach. Payloads are embedded
 -- - into the 16th LSB of each 16-bit sample provided.
 module Stego.Encode.LSB
-  ( encodeFrame,
-  )
-where
+  ( encodeFrame
+  ) where
 
 import Data.Audio.Wave (Frame)
-import Data.Bits
-  ( Bits (bit, bitSizeMaybe, clearBit, setBit, (.&.)),
-  )
+import Data.Bits (Bits((.&.), bit, bitSizeMaybe, clearBit, setBit))
 import Data.Maybe (fromJust)
 import Data.Word (Word64)
 import Stego.Common (TotpPayload)
@@ -21,7 +18,12 @@ encodeFrame time payload (i, frame) = (i, encTime ++ enc ++ drop 96 frame)
   where
     tSize = fromJust $ bitSizeMaybe time
     pSize = fromJust $ bitSizeMaybe payload
-    encodeBits = map (\(x, y) -> if y then x `setBit` 0 else x `clearBit` 0)
+    encodeBits =
+      map
+        (\(x, y) ->
+           if y
+             then x `setBit` 0
+             else x `clearBit` 0)
     enc = encodeBits $ zip (drop tSize frame) (zs (pSize - 1) payload)
     encTime = encodeBits $ zip frame (zs (tSize - 1) time)
     zs (-1) _ = []

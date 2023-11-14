@@ -1,16 +1,16 @@
-module Command.Cmd (
-  Command (..),
-  CommandReturnCode (..),
-  interpretCmd,
-) where
+module Command.Cmd
+  ( Command(..)
+  , CommandReturnCode(..)
+  , interpretCmd
+  ) where
 
-import Data.Text qualified as T
+import qualified Data.Text as T
 import Data.Text.Encoding (encodeUtf8)
 import Data.Word (Word64)
 
 import Command.DecodeCmd (runDecodeCmd)
 import Command.EncodeCmd (runEncodeCmd)
-import Stego.Common (EncodingType (LsbEncoding), StegoParams (..))
+import Stego.Common (EncodingType(LsbEncoding), StegoParams(..))
 
 data Command
   = Help
@@ -19,8 +19,8 @@ data Command
 
 instance Show Command where
   show Help = "HELP"
-  show (Encode{}) = "ENCODE"
-  show (Decode{}) = "DECODE"
+  show (Encode {}) = "ENCODE"
+  show (Decode {}) = "DECODE"
 
 data CommandReturnCode
   = CmdSuccess
