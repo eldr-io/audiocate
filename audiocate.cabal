@@ -62,35 +62,35 @@ executable audiocate
     hs-source-dirs:   app
     default-language: GHC2021
 
-executable audiocate-gui
-  hs-source-dirs: gui
-  c-sources: csrc/resources.c
-  main-is: Main.hs
-  ghc-options: -Wall -fno-warn-unused-do-bind -threaded -with-rtsopts=-N
-  build-depends: 
-    base >=4.7 && <5 
-    , audiocate
-    , time
-    , gi-glib 
-    , gi-gtk
-    , gi-adwaita
-    , gi-gobject
-    , gi-gio
-    , haskell-gi-base
-    , directory
-    , text
-    , mtl
-    , stm
-  other-modules:
-    MainWindow
-    , View.EncodeView
-    , View.LoadView
-    , AppState
-  default-language: GHC2021
-  default-extensions:
-    OverloadedLabels
-    , OverloadedStrings
-    , OverloadedRecordDot
+-- executable audiocate-gui
+--   hs-source-dirs: gui
+--   c-sources: csrc/resources.c
+--   main-is: Main.hs
+--   ghc-options: -Wall -fno-warn-unused-do-bind -threaded -with-rtsopts=-N
+--   build-depends: 
+--     base >=4.7 && <5 
+--     , audiocate
+--     , time
+--     , gi-glib 
+--     , gi-gtk
+--     , gi-adwaita
+--     , gi-gobject
+--     , gi-gio
+--     , haskell-gi-base
+--     , directory
+--     , text
+--     , mtl
+--     , stm
+--   other-modules:
+--     MainWindow
+--     , View.EncodeView
+--     , View.LoadView
+--     , AppState
+--   default-language: GHC2021
+--   default-extensions:
+--     OverloadedLabels
+--     , OverloadedStrings
+--     , OverloadedRecordDot
 
 test-suite audiocate-test
     default-language: GHC2021
@@ -107,5 +107,6 @@ test-suite audiocate-test
         base >=4.7 && <5 
       , audiocate
       , text
+      , mtl
       , hspec
       , hspec-discover
