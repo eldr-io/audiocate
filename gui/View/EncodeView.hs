@@ -82,7 +82,7 @@ onEncodeBtnClicked appState encodeView = do
         ]
     Adw.toastOverlayAddToast (toastOverlay encodeView) toast
     pure ()
-  else if secondsValid == "" || secondsValidInt < 1 then do
+  else if secondsValid == "" || secondsValidInt < 0 then do
     putStrLn "invalid seconds valid"
     toast <-
       new
