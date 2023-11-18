@@ -120,7 +120,6 @@ runEncoder enc = loop
         let shouldSkip = shouldSkipFrame (i, f)
         if shouldSkip
           then do
-            -- atomically $ writeTChan (resultChan enc) (SkippedFrame (i,replicate (length f) 0))
             atomically $ writeTChan (resultChan enc) (SkippedFrame (i, f))
             loop
           else do
