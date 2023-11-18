@@ -26,6 +26,7 @@ library
     exposed-modules:  
       Audiocate
       , Data.Audio.Wave
+      , Data.Audio.Stream
       , Stego.Common
       , Stego.Encode.LSB
       , Stego.Encode.Encoder
@@ -34,6 +35,7 @@ library
       , Command.Cmd
       , Command.DecodeCmd
       , Command.EncodeCmd
+      , Command.EncodeStreamCmd
     ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
     build-depends:    
       base >=4.7 && <5 
@@ -47,6 +49,12 @@ library
       , time
       , text
       , OTP
+      , conduit
+      , conduit-audio
+      , hsndfile
+      , hsndfile-vector
+      , resourcet
+      , transformers 
     hs-source-dirs:   lib
     default-language: GHC2021
 
@@ -99,6 +107,8 @@ test-suite audiocate-test
     main-is:          Spec.hs
     other-modules:
       EncodeSpec
+      , EncodeCmdSpec
+      , EncodeStreamCmdSpec
     ghc-options:
         -O -threaded -rtsopts -with-rtsopts=-N
     build-tool-depends:
