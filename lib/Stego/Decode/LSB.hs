@@ -2,9 +2,8 @@
 -- - the Least Significant Bit (LSB) approach. Payloads are decoded
 -- - from the 16th LSB of each 16-bit sample provided.
 module Stego.Decode.LSB
-  ( decodeFrame,
-  )
-where
+  ( decodeFrame
+  ) where
 
 import Bits.Show (showFiniteBits)
 import Data.Audio.Wave (Frame)
