@@ -1,24 +1,21 @@
 module AppState (
   AppState (..),
   AppStateLoadedAudio (..),
-  newAppState
-)
-where
+  newAppState,
+) where
 
-import Control.Concurrent (newEmptyMVar, MVar)
+import Control.Concurrent (MVar, newEmptyMVar)
 import Data.Audio.Wave (WaveAudio)
 
-data AppStateLoadedAudio = AppStateLoadedAudio 
+data AppStateLoadedAudio = AppStateLoadedAudio
   { loadedAudioWave :: WaveAudio
   , loadedAudioFile :: Bool
   , loadedAudioFilePath :: FilePath
   }
 
-data AppState = AppState 
-  {
-    loadedAudio :: MVar AppStateLoadedAudio
+data AppState = AppState
+  { loadedAudio :: MVar AppStateLoadedAudio
   }
-  
 
 -- | Creates a new empty appState
 newAppState :: IO AppState
