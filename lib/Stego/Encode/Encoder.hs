@@ -3,6 +3,7 @@
 module Stego.Encode.Encoder
   ( newEncoder
   , newEncoderWithQC
+  , encodeFrame'
   , enqueueFrame
   , stopEncoder
   , getResultChannel

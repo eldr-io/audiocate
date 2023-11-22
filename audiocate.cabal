@@ -55,6 +55,8 @@ library
       , hsndfile-vector
       , resourcet
       , transformers 
+      , vector
+      , storablevector
     hs-source-dirs:   lib
     default-language: GHC2021
 
