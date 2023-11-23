@@ -9,7 +9,7 @@ import Data.Text.Encoding (encodeUtf8)
 import Data.Word (Word64)
 import Test.Hspec (Spec, context, describe, it, shouldBe, shouldSatisfy, shouldNotBe)
 
-import Audiocate (Command(EncodeStream), CommandReturnCode(CmdSuccess))
+import Audiocate (Command(EncodeStream, DecodeStream), CommandReturnCode(CmdSuccess))
 import Command.Cmd (interpretCmd)
 import Command.EncodeCmd (doEncodeFramesWithEncoder, runEncodeCmd)
 import Data.Audio.Wave
@@ -36,4 +36,7 @@ spec =
         let outputFile = "test/output/sample1_stream_out.wav"
         let encodeCmd = EncodeStream "test-secret" 5 inputFile outputFile
         result <- interpretCmd encodeCmd
-        result `shouldNotBe` CmdSuccess
+        result `shouldBe` CmdSuccess
+        let decodeCmd = DecodeStream "test-secret" 5 outputFile
+        decode_result <- interpretCmd decodeCmd
+        decode_result `shouldBe` CmdSuccess
