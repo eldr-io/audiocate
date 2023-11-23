@@ -8,7 +8,7 @@ import Data.Audio.Wave (Frame)
 import qualified Data.Conduit.Audio as CA
 import qualified Data.Conduit.Audio.Sndfile as CA
 import Data.Int (Int16)
-import Data.Time (getCurrentTime, UTCTime)
+import Data.Time (UTCTime, getCurrentTime)
 import qualified Data.Vector.Storable as VS
 import Sound.File.Sndfile (Info(format), getFileInfo)
 import Stego.Common (StegoParams, shouldSkipFrame)
@@ -42,7 +42,10 @@ runEncodeStreamCmd stegoP inputFile outputFile = do
     CA.sinkSnd outputFile fmt (CA.AudioSource source rate channels frames)
 
 doEncodeFrame :: StegoParams -> UTCTime -> Frame -> Frame
-doEncodeFrame stegoP time f = if shouldSkipFrame f then f else encodeFrame' stegoP time f
+doEncodeFrame stegoP time f =
+  if shouldSkipFrame f
+    then f
+    else encodeFrame' stegoP time f
 
 skipFilterNotify :: Frame -> String
 skipFilterNotify f
