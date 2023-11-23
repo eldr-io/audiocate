@@ -35,6 +35,7 @@ library
       , Command.DecodeCmd
       , Command.EncodeCmd
       , Command.EncodeStreamCmd
+      , Command.DecodeStreamCmd
     ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
     build-depends:    
       base >=4.7 && <5 
@@ -111,6 +112,7 @@ test-suite audiocate-test
       EncodeSpec
       , EncodeCmdSpec
       , EncodeStreamCmdSpec
+      , DecodeStreamCmdSpec
     ghc-options:
         -O -threaded -rtsopts -with-rtsopts=-N
     build-tool-depends:

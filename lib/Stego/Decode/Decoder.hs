@@ -11,6 +11,7 @@ module Stego.Decode.Decoder
   , DecoderResultStats(DRS)
   , getResultStats
   , getResultFrames
+  , decodeFrame'
   ) where
 
 import Control.Concurrent (forkIO)

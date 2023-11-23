@@ -12,18 +12,21 @@ import Command.DecodeCmd (runDecodeCmd)
 import Command.EncodeCmd (runEncodeCmd)
 import Command.EncodeStreamCmd (runEncodeStreamCmd)
 import Stego.Common (EncodingType(LsbEncoding), StegoParams(..))
+import Command.DecodeStreamCmd (runDecodeStreamCmd)
 
 data Command
   = Help
   | Encode String Int FilePath FilePath
   | EncodeStream String Int FilePath FilePath
   | Decode String Int FilePath
+  | DecodeStream String Int FilePath
 
 instance Show Command where
   show Help = "HELP"
   show (Encode {}) = "ENCODE"
   show (EncodeStream {}) = "ENCODESTREAM"
   show (Decode {}) = "DECODE"
+  show (DecodeStream {}) = "DECODESTREAM"
 
 data CommandReturnCode
   = CmdSuccess
@@ -45,18 +48,24 @@ interpretCmd cmd =
     (Encode secret timeRange inputFile outputFile) -> do
       let s = encodeUtf8 (T.pack secret)
       let t :: Word64 = fromIntegral timeRange
-      let stegoParams = StegoParams s t 6 LsbEncoding 123
+      let stegoParams = StegoParams s t 6 LsbEncoding 0
       runEncodeCmd stegoParams inputFile outputFile
       pure CmdSuccess
     (EncodeStream secret timeRange inputFile outputFile) -> do
       let s = encodeUtf8 (T.pack secret)
       let t :: Word64 = fromIntegral timeRange
-      let stegoParams = StegoParams s t 6 LsbEncoding 123
+      let stegoParams = StegoParams s t 6 LsbEncoding 0
       runEncodeStreamCmd stegoParams inputFile outputFile
       pure CmdSuccess
     (Decode secret timeRange inputFile) -> do
       let s = encodeUtf8 (T.pack secret)
       let t :: Word64 = fromIntegral timeRange
-      let stegoParams = StegoParams s t 6 LsbEncoding 123
+      let stegoParams = StegoParams s t 6 LsbEncoding 0
       runDecodeCmd stegoParams inputFile
+      pure CmdSuccess
+    (DecodeStream secret timeRange inputFile) -> do
+      let s = encodeUtf8 (T.pack secret)
+      let t :: Word64 = fromIntegral timeRange
+      let stegoParams = StegoParams s t 6 LsbEncoding 0
+      runDecodeStreamCmd stegoParams inputFile
       pure CmdSuccess
