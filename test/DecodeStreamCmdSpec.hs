@@ -30,9 +30,9 @@ spec :: Spec
 spec =
   describe "Tests the decoding stream command functionality" $ do
     context
-      "when passing it an decode stream command targeting the sample1_stream_out.wav test file" $
-      it "should return an result that encoded the decoded all of the frames" $ do
-        let inputFile = "test/output/sample1_stream_out.wav"
+      "when passing it an decode stream command targeting the sample2_stream_in.wav test file" $
+      it "should return a result that decoded all of the encoded frames" $ do
+        let inputFile = "test/corpus/sample2_stream_in.wav"
         let encodeCmd = DecodeStream "test-secret" 5 inputFile
         result <- interpretCmd encodeCmd
         result `shouldBe` CmdSuccess
