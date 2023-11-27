@@ -236,7 +236,7 @@
                 <property name="propagate-natural-height">true</property>
                 <property name="max-content-height">300</property>
                 <child>
-                  <object class="GtkBox" id="container">
+                  <object class="GtkBox" id="frames_container">
                     <property name="homogeneous">true</property>
                   </object>
                 </child>

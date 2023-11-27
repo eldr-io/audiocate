@@ -17,6 +17,8 @@ import Data.Word (Word64)
 import Data.Text.Encoding (encodeUtf8)
 import Stego.Common (StegoParams(..), EncodingType(LsbEncoding))
 import Command.EncodeCmd (runEncodeCmd)
+import Control.Monad (forM_)
+import qualified GI.Gtk as Adw
 
 data EncodeView = EncodeView
   { title :: T.Text,
@@ -34,6 +36,8 @@ data EncodeView = EncodeView
     -- payloadEntryRow :: !Adw.EntryRow,
     secondsValidEntryRow :: !Adw.EntryRow,
     runEncoderBtn :: !Gtk.Button,
+    framesWindow :: !Gtk.ScrolledWindow,
+    framesContainer :: !Gtk.Box,
     toastOverlay :: !Adw.ToastOverlay
   }
 
@@ -58,6 +62,15 @@ updateEncodeViewAudioFileLoaded appState encodeView = do
   let banner = topBanner encodeView
   Adw.bannerSetRevealed banner False
   let runEncodeBtn = runEncoderBtn encodeView 
+
+  let framesBox = framesContainer encodeView
+  let numFrames = length (audioFrames wa)
+  mapM_ (\_ -> do
+    lbl <- new Gtk.Label [#label := "test"]
+    item <- new Adw.Bin [#child := lbl]
+    Gtk.boxAppend framesBox item
+    ) [0..numFrames]
+    
   Gtk.setWidgetSensitive runEncodeBtn True
 
 -- | Handler for the onClicked event of the RunEncoderBtn
@@ -132,6 +145,12 @@ initEncodeView appState overlay = do
   -- build button instances
   runEncoderBtnPtr <- fromJust <$> Gtk.builderGetObject builder "runEncoderBtn"
   runEncoderBtn <- fromJust <$> castTo Gtk.Button runEncoderBtnPtr
+  -- frames scrolled Window
+  framesScrolledWindowPtr <- fromJust <$> Gtk.builderGetObject builder "scrolled_window"
+  framesScrolledWindow <- fromJust <$> castTo Gtk.ScrolledWindow framesScrolledWindowPtr
+  framesBoxPtr <- fromJust <$> Gtk.builderGetObject builder "frames_container"
+  framesBox <- fromJust <$> castTo Gtk.Box framesBoxPtr
+
 
   -- build eventView state ADT
   let ev =
@@ -150,6 +169,8 @@ initEncodeView appState overlay = do
           secretKeyEntryRow
           secondsValidEntryRow
           runEncoderBtn
+          framesScrolledWindow
+          framesBox
           overlay
 
   -- | register event handlers
