@@ -58,11 +58,6 @@
                           </object>
                         </child>
                         <child>
-                          <object class="AdwEntryRow" id="payloadEntryRow">
-                            <property name="title" translatable="true">Payload</property>
-                          </object>
-                        </child>
-                        <child>
                           <object class="AdwEntryRow" id="secondsValidEntryRow">
                             <property name="title" translatable="true">Seconds valid</property>
                           </object>
@@ -102,15 +97,6 @@
                             </child>
                             <style>
                               <class name="success"/>
-                            </style>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkButton">
-                            <property name="icon-name">cross-filled-large-symbolic</property>
-                            <property name="sensitive">false</property>
-                            <style>
-                              <class name="error"/>
                             </style>
                           </object>
                         </child>
@@ -243,10 +229,10 @@
               </object>
             </child>
             <child>
-              <object class="GtkScrolledWindow">
+              <object class="GtkScrolledWindow" id="output_scrolled_window">
                 <property name="height-request">100</property>
                 <child>
-                  <object class="GtkTextView" id="textview">
+                  <object class="GtkTextView" id="output_textview">
                     <property name="bottom-margin">12</property>
                     <property name="left-margin">12</property>
                     <property name="right-margin">12</property>
