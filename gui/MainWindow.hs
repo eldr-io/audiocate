@@ -19,6 +19,8 @@ import View.EncodeView
   , updateEncodeViewAudioFileLoaded
   )
 import View.LoadView (LoadView(..), initLoadView)
+import GI.Gio (MenuItem(..), menuItemSetLabel)
+import qualified GI.Gio as Gtk
 
 data MainWindow =
   MainWindow
@@ -87,17 +89,27 @@ initMainWindow app state = do
     encViewBox
     (Just "encode-page")
     "Encode"
-    "mail-send-symbolic"
+    "sound-wave-symbolic"
   Adw.viewStackAddTitledWithIcon
     stack
     decViewBox
     (Just "decode-page")
     "Decode"
-    "mail-send-symbolic"
+    "sound-wave-alt-symbolic"
   viewSwitcherBar <- new Adw.ViewSwitcherBar [#stack := stack]
   viewSwitcherTitle <- new Adw.ViewSwitcherTitle [#stack := stack]
   headerBar <- new Adw.HeaderBar [#titleWidget := viewSwitcherTitle]
-  menuBtn <- new Gtk.Button [#iconName := "open-menu-symbolic"]
+
+  -- configure top left menu
+  menuModelItem <- new MenuItem []
+  menuItemSetLabel menuModelItem (Just $ T.pack "Toggle Light/Dark")
+  menuModelItemAbout <- new MenuItem []
+  menuItemSetLabel menuModelItemAbout (Just $ T.pack "About")
+
+  menuModel <- new Gtk.Menu []
+  Gtk.menuAppendItem menuModel menuModelItem
+  Gtk.menuAppendItem menuModel menuModelItemAbout
+  menuBtn <- new Gtk.MenuButton [ #menuModel := menuModel, #iconName := "open-menu-symbolic"]
   Adw.headerBarPackStart headerBar menuBtn
   content.append headerBar
   content.append stack

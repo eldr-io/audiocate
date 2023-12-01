@@ -245,7 +245,7 @@
             </child>
             <child>
               <object class="GtkScrolledWindow" id="output_scrolled_window">
-                <property name="height-request">135</property>
+                <property name="height-request">150</property>
                 <child>
                   <object class="GtkTextView" id="output_textview">
                     <property name="bottom-margin">12</property>

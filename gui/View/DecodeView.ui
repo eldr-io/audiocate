@@ -34,7 +34,7 @@
                     <property name="orientation">1</property>
                     <child>
                       <object class="GtkLabel">
-                        <property name="label" translatable="true">Encoder settings</property>
+                        <property name="label" translatable="true">Decoder settings</property>
                         <style>
                           <class name="title-4"/>
                         </style>
@@ -42,7 +42,7 @@
                     </child>
                     <child>
                       <object class="GtkLabel">
-                        <property name="label" translatable="true">Configure the encoder settings to use</property>
+                        <property name="label" translatable="true">Configure the decoder settings to use</property>
                       </object>
                     </child>
                     <child>
@@ -213,7 +213,7 @@
             </child>
             <child>
               <object class="GtkScrolledWindow" id="output_scrolled_window">
-                <property name="height-request">135</property>
+                <property name="height-request">150</property>
                 <child>
                   <object class="GtkTextView" id="output_textview">
                     <property name="bottom-margin">12</property>
