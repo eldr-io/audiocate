@@ -19,15 +19,21 @@ activate app = do
   let w = window mw
   w.present
 
+toggleTheme :: Adw.Application -> [String] -> IO ()
+toggleTheme _ [] = pure ()
+toggleTheme app ["--light"] = do
+  sm <- Adw.getApplicationStyleManager app
+  Adw.setStyleManagerColorScheme sm Adw.ColorSchemeForceLight
+toggleTheme _ _ = pure ()
+
 main :: IO ()
 main = do
-  app <- Adw.new Adw.Application
-      [ #applicationId Adw.:= "eldr-io.audiocate.gui",
-        Adw.On #activate (activate ?self)
-      ]
-  -- sm <- Adw.getApplicationStyleManager app
-  -- Adw.setStyleManagerColorScheme sm Adw.ColorSchemeForceLight
-  putStrLn $ "Audiocate GUI v" ++ version
   args <- getArgs
   progName <- getProgName
-  void (app.run $ Just $ progName : args)
+  app <- Adw.new Adw.Application
+      [ #applicationId Adw.:= "eldr-io.audiocate.gui",
+        Adw.On #activate (activate ?self),
+        Adw.On #activate (toggleTheme ?self args)
+      ]
+  putStrLn $ "Audiocate GUI v" ++ version
+  void (app.run $ Just $ progName : [])
