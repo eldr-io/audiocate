@@ -102,8 +102,6 @@ updateEncodeViewAudioFileLoaded appState encodeView = do
   let framesBox = framesContainer encodeView
   let frames = audioFrames wa
 
-  let children = Gtk.widgetGetChildren framesBox
-  
   -- Generate the visible frame indicators and append them to the framesBox
   mapM_
     (\(x, y) -> do
@@ -157,7 +155,7 @@ onEncodeBtnClicked appState encodeView = do
           ]
       Adw.toastOverlayAddToast (toastOverlay encodeView) toast
       pure ()
-    else if secondsValid == "" || secondsValidInt < 0
+    else if secondsValid == "" || secondsValidInt < 1
            then do
              putStrLn "invalid seconds valid"
              toast <-
@@ -170,6 +168,7 @@ onEncodeBtnClicked appState encodeView = do
              Adw.toastOverlayAddToast (toastOverlay encodeView) toast
              pure ()
            else do
+             putStrLn "valid encoding params"
              let textView = outputTextView encodeView
              textBuffer <- Gtk.textViewGetBuffer textView
              start <- Gtk.textBufferGetEndIter textBuffer
