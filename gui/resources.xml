@@ -2,6 +2,7 @@
 <gresources>
   <gresource prefix="/gui">
     <file preprocess="xml-stripblanks">View/EncodeView.ui</file>
+    <file preprocess="xml-stripblanks">View/DecodeView.ui</file>
     <file preprocess="xml-stripblanks">View/LoadView.ui</file>
   </gresource>
 </gresources>

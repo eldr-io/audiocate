@@ -6,7 +6,14 @@ module View.EncodeView
 
 import AppState (AppState(loadedAudio), AppStateLoadedAudio(loadedAudioWave))
 import Command.EncodeCmd (doEncodeFramesWithEncoder)
-import Control.Concurrent (forkIO, readMVar)
+import Control.Concurrent
+  ( MVar
+  , forkIO
+  , newEmptyMVar
+  , putMVar
+  , readMVar
+  , tryTakeMVar
+  )
 import Control.Concurrent.STM (atomically, readTChan)
 import Control.Monad (void)
 import Control.Monad.Except (runExceptT)
@@ -52,6 +59,9 @@ data EncodeView =
     , framesContainer :: !Gtk.Box
     , toastOverlay :: !Adw.ToastOverlay
     , outputTextView :: !Gtk.TextView
+    , encodeDestinationBtnContent :: !Adw.ButtonContent
+    , encodedWaveAudio :: MVar WaveAudio
+    , writeEncoderFileBtn :: !Gtk.Button
     }
 
 -- | Updates the EncodeView listbox with the properties of the loaded
@@ -60,8 +70,9 @@ updateEncodeViewAudioFileLoaded :: AppState -> EncodeView -> IO ()
 updateEncodeViewAudioFileLoaded appState encodeView = do
   audio <- readMVar $ loadedAudio appState
   let wa = loadedAudioWave audio
+  let srcFilePath = T.pack (srcFile wa)
   let srcLbl = encFilePropSrcLbl encodeView
-  Gtk.labelSetLabel srcLbl (T.pack (srcFile wa))
+  Gtk.labelSetLabel srcLbl srcFilePath
   let rateLbl = encFilePropRateLbl encodeView
   Gtk.labelSetLabel rateLbl (T.pack $ show (rate wa))
   let bitRateLbl = encFilePropBitRateLbl encodeView
@@ -73,6 +84,13 @@ updateEncodeViewAudioFileLoaded appState encodeView = do
   let numChannelsLbl = encFilePropNumChannelsLbl encodeView
   Gtk.labelSetLabel numChannelsLbl (T.pack $ show (channels wa))
   let banner = topBanner encodeView
+  let fileExt = last (T.splitOn "/" srcFilePath)
+  print fileExt
+  let outputFile = T.splitOn "." fileExt
+  print outputFile
+  Adw.setButtonContentLabel
+    (encodeDestinationBtnContent encodeView)
+    (head outputFile <> "_enc.wav")
   Adw.bannerSetRevealed banner False
   -- clear the output textview
   let textView = outputTextView encodeView
@@ -83,6 +101,9 @@ updateEncodeViewAudioFileLoaded appState encodeView = do
   let runEncodeBtn = runEncoderBtn encodeView
   let framesBox = framesContainer encodeView
   let frames = audioFrames wa
+
+  let children = Gtk.widgetGetChildren framesBox
+  
   -- Generate the visible frame indicators and append them to the framesBox
   mapM_
     (\(x, y) -> do
@@ -177,9 +198,12 @@ onEncodeBtnClicked appState encodeView = do
                (-1)
              iterEnd <- Gtk.textBufferGetEndIter textBuffer
              Gtk.textBufferInsert textBuffer iterEnd stats (-1)
-             let wa' =
+             targetFile <-
+               Adw.getButtonContentLabel
+                 (encodeDestinationBtnContent encodeView)
+             let encodedWa =
                    WaveAudio
-                     { srcFile = "tpm.wav"
+                     { srcFile = T.unpack targetFile
                      , bitSize = bitSize wa
                      , rate = rate wa
                      , channels = channels wa
@@ -187,41 +211,62 @@ onEncodeBtnClicked appState encodeView = do
                      , samples =
                          concatMap snd (sort $ getResultFrames encodeResult)
                      }
-             write <- runExceptT (waveAudioToFile "tpm2.wav" wa')
-             case write of
-               Left err -> putStrLn err
-               Right _ -> do
-                 iterEndWrite <- Gtk.textBufferGetEndIter textBuffer
-                 let str =
-                       T.pack $
-                       "Successfully wrote encoded audio to file " <>
-                       "tpm2.wav. \n"
-                 Gtk.textBufferInsert textBuffer iterEndWrite str (-1)
-                 toast <-
-                   new
-                     Adw.Toast
-                     [ #timeout := 5
-                     , #title := "Encoding completed successfully."
-                     ]
-                 Adw.toastOverlayAddToast (toastOverlay encodeView) toast
+             _ <- tryTakeMVar (encodedWaveAudio encodeView)
+             putMVar (encodedWaveAudio encodeView) encodedWa
+             toast <-
+               new
+                 Adw.Toast
+                 [#timeout := 5, #title := "Encoding completed successfully."]
+             Adw.toastOverlayAddToast (toastOverlay encodeView) toast
+             let writeBtn = writeEncoderFileBtn encodeView
+             Gtk.setWidgetSensitive writeBtn True
   where
     printLoop c fs totalFs tb = do
       res <- atomically $ readTChan c
       case res of
         StoppingEncoder -> do
           pure ()
-        EncodedFrame (x, _) -> do
+        EncodedFrame _ -> do
           iter <- Gtk.textBufferGetEndIter tb
-          putStrLn ("Successfully encoded frame " <> show (x + 1))
           let str = T.pack "<span foreground='green'>#</span>"
           Gtk.textBufferInsertMarkup tb iter str (-1)
           printLoop c (fs + 1) totalFs tb
-        SkippedFrame (x, _) -> do
+        SkippedFrame _ -> do
           iter <- Gtk.textBufferGetEndIter tb
-          putStrLn ("Skipped encoding of frame " <> show (x + 1))
-          let str = T.pack "<span foreground='orange'>Ø</span>"
+          let str = T.pack "<span foreground='gray'>#</span>"
           Gtk.textBufferInsertMarkup tb iter str (-1)
           printLoop c (fs + 1) totalFs tb
+
+onWriteEncodeFileBtnClicked :: EncodeView -> IO ()
+onWriteEncodeFileBtnClicked encodeView = do
+  putStrLn "Write encode clicked"
+  wa <- tryTakeMVar (encodedWaveAudio encodeView)
+  case wa of
+    Nothing -> do
+      toast <-
+        new
+          Adw.Toast
+          [ #timeout := 3
+          , #title := "Failed to write encoded audio, no encoded audio loaded."
+          ]
+      Adw.toastOverlayAddToast (toastOverlay encodeView) toast
+    Just wa' -> do
+      let textView = outputTextView encodeView
+      textBuffer <- Gtk.textViewGetBuffer textView
+      iterEndWrite <- Gtk.textBufferGetEndIter textBuffer
+      let str =
+            T.pack $ "Writing encoded audio to file " <> srcFile wa' <> "...\n"
+      Gtk.textBufferInsert textBuffer iterEndWrite str (-1)
+      write <- runExceptT (waveAudioToFile (srcFile wa') wa')
+      case write of
+        Left err -> putStrLn err
+        Right _ -> do
+          iterEndWrite' <- Gtk.textBufferGetEndIter textBuffer
+          let str' =
+                T.pack $
+                "Successfully wrote encoded audio to " <> srcFile wa' <> ".\n"
+          Gtk.textBufferInsert textBuffer iterEndWrite' str' (-1)
+          Gtk.setWidgetSensitive (writeEncoderFileBtn encodeView) False
 
 -- | Initialises the encodeView by loading the .ui resource and creating
 -- the EncodeView data instance
@@ -282,6 +327,16 @@ initEncodeView appState overlay = do
     fromJust <$> Gtk.builderGetObject builder "output_textview"
   outputTextView <-
     fromJust <$> Data.GI.Base.castTo Gtk.TextView outputTextViewPtr
+  -- encodeDestinationBtnContent
+  encodeDestinationBtnContentPtr <-
+    fromJust <$> Gtk.builderGetObject builder "encodeDestinationBtnContent"
+  encodeDestinationBtnContent <-
+    fromJust <$> castTo Adw.ButtonContent encodeDestinationBtnContentPtr
+  -- Write encode File Btn
+  writeEncodeFileBtnPtr <-
+    fromJust <$> Gtk.builderGetObject builder "writeEncoderFileBtn"
+  writeEncodeFileBtn <- fromJust <$> castTo Gtk.Button writeEncodeFileBtnPtr
+  encodedWaveAudio <- newEmptyMVar
   -- build eventView state ADT
   let ev =
         EncodeView
@@ -303,6 +358,10 @@ initEncodeView appState overlay = do
           framesBox
           overlay
           outputTextView
+          encodeDestinationBtnContent
+          encodedWaveAudio
+          writeEncodeFileBtn
   -- | register event handlers
   Adw.after runEncoderBtn #clicked $ do onEncodeBtnClicked appState ev
+  Adw.after writeEncodeFileBtn #clicked $ do onWriteEncodeFileBtnClicked ev
   pure ev

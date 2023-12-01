@@ -70,7 +70,7 @@
                                 <property name="margin-top">10</property>
                                 <property name="margin-bottom">10</property>
                                 <child>
-                                  <object class="AdwButtonContent">
+                                  <object class="AdwButtonContent" id="encodeDestinationBtnContent">
                                     <property name="label" translatable="true">Choose file</property>
                                     <property name="icon-name">text-symbolic</property>
                                   </object>
@@ -92,11 +92,26 @@
                             <child>
                               <object class="AdwButtonContent">
                                 <property name="label" translatable="true">Run Encoder</property>
-                                <property name="icon-name">attach-audio-symbolic</property>
+                                <property name="icon-name">sound-wave-symbolic</property>
                               </object>
                             </child>
                             <style>
                               <class name="success"/>
+                            </style>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkButton" id="writeEncoderFileBtn">
+                            <property name="width-request">250</property>
+                            <property name="sensitive">False</property>
+                            <child>
+                              <object class="AdwButtonContent">
+                                <property name="label" translatable="true">Write to file</property>
+                                <property name="icon-name">text-symbolic</property>
+                              </object>
+                            </child>
+                            <style>
+                              <class name="info"/>
                             </style>
                           </object>
                         </child>
@@ -230,7 +245,7 @@
             </child>
             <child>
               <object class="GtkScrolledWindow" id="output_scrolled_window">
-                <property name="height-request">100</property>
+                <property name="height-request">135</property>
                 <child>
                   <object class="GtkTextView" id="output_textview">
                     <property name="bottom-margin">12</property>

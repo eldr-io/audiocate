@@ -95,6 +95,7 @@ executable audiocate-gui
   other-modules:
     MainWindow
     , View.EncodeView
+    , View.DecodeView
     , View.LoadView
     , AppState
   default-language: GHC2021

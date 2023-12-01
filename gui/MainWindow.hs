@@ -2,84 +2,105 @@ module MainWindow where
 
 import AppState (AppState)
 import Audiocate (version)
-import Data.Text qualified as T
-import GI.Adw (AttrOp ((:=)), new)
-import GI.Adw qualified as Adw
-import GI.Gtk qualified as Gtk
-import View.EncodeView (EncodeView (..), initEncodeView, updateEncodeViewAudioFileLoaded)
-import View.LoadView (LoadView (..), initLoadView)
-import Control.Concurrent (newEmptyMVar, forkIO, takeMVar, MVar)
+import Control.Concurrent (MVar, forkIO, newEmptyMVar, takeMVar, putMVar)
 import Control.Monad (forever)
+import qualified Data.Text as T
+import GI.Adw (AttrOp((:=)), new)
+import qualified GI.Adw as Adw
+import qualified GI.Gtk as Gtk
+import View.DecodeView
+  ( DecodeView(..)
+  , initDecodeView
+  , updateDecodeViewAudioFileLoaded
+  )
+import View.EncodeView
+  ( EncodeView(..)
+  , initEncodeView
+  , updateEncodeViewAudioFileLoaded
+  )
+import View.LoadView (LoadView(..), initLoadView)
 
-data MainWindow = MainWindow
-  { application :: !Adw.Application
-  , appState :: AppState
-  , toastOverlay :: !Adw.ToastOverlay
-  , window :: !Adw.ApplicationWindow
-  , encodeView :: !EncodeView
-  , loadView :: !LoadView
-  }
+data MainWindow =
+  MainWindow
+    { application :: !Adw.Application
+    , appState :: AppState
+    , toastOverlay :: !Adw.ToastOverlay
+    , window :: !Adw.ApplicationWindow
+    , encodeView :: !EncodeView
+    , decodeView :: !DecodeView
+    , loadView :: !LoadView
+    }
 
 updateEncodeViewFileLoad :: MVar Bool -> AppState -> EncodeView -> IO ()
 updateEncodeViewFileLoad fileLoadedMVar state encodeView = do
   _ <- takeMVar fileLoadedMVar
   updateEncodeViewAudioFileLoaded state encodeView
+  putMVar fileLoadedMVar True
+
+updateDecodeViewFileLoad :: MVar Bool -> AppState -> DecodeView -> IO ()
+updateDecodeViewFileLoad fileLoadedMVar state decodeView = do
+  _ <- takeMVar fileLoadedMVar
+  updateDecodeViewAudioFileLoaded state decodeView
 
 initMainWindow :: Adw.Application -> AppState -> IO MainWindow
 initMainWindow app state = do
   content <- new Gtk.Box [#orientation := Gtk.OrientationVertical]
   overlay <- new Adw.ToastOverlay [#child := content]
   stack <- new Adw.ViewStack [#hexpand := True]
-
   window <-
     new
       Adw.ApplicationWindow
       [ #application := app
       , #content := overlay
       , #defaultWidth := 1220
-      , #defaultHeight := 760
+      , #defaultHeight := 800
       ]
-
-  label1 <- new Gtk.Label [#label := "Decode", #hexpand := True]
-
   let welcomeTitle = "Audiocate " <> version
-
   encodeView <- initEncodeView state overlay
   let encViewBox = encodeViewBox encodeView
-
+  decodeView <- initDecodeView state overlay
+  let decViewBox = decodeViewBox decodeView
   fileLoadedMVar <- newEmptyMVar
-
-  _ <- forkIO (forever $ updateEncodeViewFileLoad fileLoadedMVar state encodeView)
-
+  _ <-
+    forkIO (forever $ updateEncodeViewFileLoad fileLoadedMVar state encodeView)
+  _ <-
+    forkIO (forever $ updateDecodeViewFileLoad fileLoadedMVar state decodeView)
   loadView <- initLoadView window state overlay fileLoadedMVar
   let lViewBox = loadViewBox loadView
-
   welcomePage <-
     new
       Adw.StatusPage
       [ #iconName := "org.gnome.Adwaita1.Demo"
       , #title := T.pack welcomeTitle
-      , #description
-          := "Audio encoding authentication and "
-          <> "validation library for verifying audio as being from a trusted source"
+      , #description := "Audio encoding authentication and " <>
+        "validation library for verifying audio as being from a trusted source"
       , #child := lViewBox
       ]
-
-  Adw.viewStackAddTitledWithIcon stack welcomePage (Just "welcome-page") "Load" "audio-x-generic"
-
-  Adw.viewStackAddTitledWithIcon stack encViewBox (Just "encode-page") "Encode" "mail-send-symbolic"
-  Adw.viewStackAddTitledWithIcon stack label1 (Just "decode-page") "Decode" "mail-send-symbolic"
-
+  Adw.viewStackAddTitledWithIcon
+    stack
+    welcomePage
+    (Just "welcome-page")
+    "Load"
+    "audio-x-generic"
+  Adw.viewStackAddTitledWithIcon
+    stack
+    encViewBox
+    (Just "encode-page")
+    "Encode"
+    "mail-send-symbolic"
+  Adw.viewStackAddTitledWithIcon
+    stack
+    decViewBox
+    (Just "decode-page")
+    "Decode"
+    "mail-send-symbolic"
   viewSwitcherBar <- new Adw.ViewSwitcherBar [#stack := stack]
   viewSwitcherTitle <- new Adw.ViewSwitcherTitle [#stack := stack]
   headerBar <- new Adw.HeaderBar [#titleWidget := viewSwitcherTitle]
-
   menuBtn <- new Gtk.Button [#iconName := "open-menu-symbolic"]
   Adw.headerBarPackStart headerBar menuBtn
-
   content.append headerBar
   content.append stack
   content.append viewSwitcherBar
-
-  let mw = MainWindow app state overlay window encodeView loadView
+  let mw = MainWindow app state overlay window encodeView decodeView loadView
   pure mw
