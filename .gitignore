@@ -23,6 +23,5 @@ cabal.project.local~
 .ghc.environment.*
 *_enc.wav
 
-test/corpus/lol.wav
 test/output/*.wav
 test/output/*.png
