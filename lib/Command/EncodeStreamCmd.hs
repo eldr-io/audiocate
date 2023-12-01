@@ -20,8 +20,8 @@ import Stego.Encode.Encoder (encodeFrame')
 -- using the stegoParams. Finally, wraps that runnable conduit
 -- inside a new proxy AudioSource and attaches a runner sink on the end 
 -- which writes the yielded chunks into the destination outputFile.
-runEncodeStreamCmd :: StegoParams -> FilePath -> FilePath -> IO ()
-runEncodeStreamCmd stegoP inputFile outputFile = do
+runEncodeStreamCmd :: Bool -> StegoParams -> FilePath -> FilePath -> IO ()
+runEncodeStreamCmd verbose stegoP inputFile outputFile = do
   info <- getFileInfo inputFile
   let fmt = format info
   input :: CA.AudioSource m Int16 <- CA.sourceSnd inputFile
@@ -29,17 +29,28 @@ runEncodeStreamCmd stegoP inputFile outputFile = do
   let channels = CA.channels input
   let frames = CA.frames input
   time <- getCurrentTime
-  let source =
-        CA.source input .| mapC VS.toList .|
-        iterMC (liftIO . putStrLn . printChunkReceive . length) .|
-        mapC (\x -> [(0, x)] :: [Frame]) .|
-        iterMC (liftIO . putStrLn . head . map skipFilterNotify) .|
-        mapC (map (doEncodeFrame stegoP time)) .|
-        mapC (head . map snd) .|
-        iterMC (liftIO . putStrLn . printChunkEncoded . length) .|
-        mapC VS.fromList
-  runConduitRes $
-    CA.sinkSnd outputFile fmt (CA.AudioSource source rate channels frames)
+  if verbose
+    then do
+      let source =
+            CA.source input .| mapC VS.toList .|
+            iterMC (liftIO . putStrLn . printChunkReceive . length) .|
+            mapC (\x -> [(0, x)] :: [Frame]) .|
+            iterMC (liftIO . putStrLn . head . map skipFilterNotify) .|
+            mapC (map (doEncodeFrame stegoP time)) .|
+            mapC (head . map snd) .|
+            iterMC (liftIO . putStrLn . printChunkEncoded . length) .|
+            mapC VS.fromList
+      runConduitRes $
+        CA.sinkSnd outputFile fmt (CA.AudioSource source rate channels frames)
+    else do
+      let source =
+            CA.source input .| mapC VS.toList .|
+            mapC (\x -> [(0, x)] :: [Frame]) .|
+            mapC (map (doEncodeFrame stegoP time)) .|
+            mapC (head . map snd) .|
+            mapC VS.fromList
+      runConduitRes $
+        CA.sinkSnd outputFile fmt (CA.AudioSource source rate channels frames)
 
 doEncodeFrame :: StegoParams -> UTCTime -> Frame -> Frame
 doEncodeFrame stegoP time f =

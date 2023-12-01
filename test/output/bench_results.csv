@@ -1,0 +1,2 @@
+Name,Mean (ps),2*Stdev (ps),Allocated,Copied,Peak Memory
+All.EncodeCmd.encode sample6,41757545136800,47195294176,146124332481,23286788497,13359906816

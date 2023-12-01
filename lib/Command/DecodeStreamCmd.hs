@@ -21,17 +21,26 @@ import Stego.Decode.Decoder
 -- before transforming them into a list of Frames and decoding them 
 -- using the stegoParams. 
 -- The sink for this pipeline is printing the decoding result.
-runDecodeStreamCmd :: StegoParams -> FilePath -> IO ()
-runDecodeStreamCmd stegoP inputFile = do
+runDecodeStreamCmd :: Bool -> StegoParams -> FilePath -> IO ()
+runDecodeStreamCmd verbose stegoP inputFile = do
   input :: CA.AudioSource m Int16 <- CA.sourceSnd inputFile
-  let source =
-        CA.source input .| mapC VS.toList .|
-        iterMC (liftIO . putStrLn . printChunkReceive . length) .|
-        mapC (\x -> [(0, x)] :: [Frame]) .|
-        mapC (map (decodeFrame' stegoP)) .|
-        mapC (map (toResult stegoP (0, []))) .|
-        mapM_C (liftIO . putStrLn . head . map printDecoderResult)
-  runConduitRes source
+  if verbose then do
+    let source =
+          CA.source input .| mapC VS.toList .|
+          iterMC (liftIO . putStrLn . printChunkReceive . length) .|
+          mapC (\x -> [(0, x)] :: [Frame]) .|
+          mapC (map (decodeFrame' stegoP)) .|
+          mapC (map (toResult stegoP (0, []))) .|
+          mapM_C (liftIO . putStrLn . head . map printDecoderResult)
+    runConduitRes source
+  else do
+    let source =
+          CA.source input .| mapC VS.toList .|
+          mapC (\x -> [(0, x)] :: [Frame]) .|
+          mapC (map (decodeFrame' stegoP)) .|
+          mapC (map (toResult stegoP (0, []))) .| 
+          mapM_C (\_ -> pure ())
+    runConduitRes source
 
 -- | Helper function for creating a strongly typed DecoderResult from the 
 -- sourced frames passed through the decoder.

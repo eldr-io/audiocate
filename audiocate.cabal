@@ -125,3 +125,16 @@ test-suite audiocate-test
       , mtl
       , hspec
       , hspec-discover
+
+benchmark bench
+  default-language: GHC2021
+  hs-source-dirs: test-benchmark
+  main-is:       Benchmark.hs
+  type:          exitcode-stdio-1.0
+  build-depends: 
+      base
+    , audiocate
+    , tasty-bench
+  ghc-options:   "-with-rtsopts=-A32m"
+  if impl(ghc >= 8.6)
+    ghc-options: -fproc-alignment=64

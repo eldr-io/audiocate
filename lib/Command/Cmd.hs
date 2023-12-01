@@ -55,7 +55,7 @@ interpretCmd cmd =
       let s = encodeUtf8 (T.pack secret)
       let t :: Word64 = fromIntegral timeRange
       let stegoParams = StegoParams s t 6 LsbEncoding 0
-      runEncodeStreamCmd stegoParams inputFile outputFile
+      runEncodeStreamCmd False stegoParams inputFile outputFile
       pure CmdSuccess
     (Decode secret timeRange inputFile) -> do
       let s = encodeUtf8 (T.pack secret)
@@ -67,5 +67,5 @@ interpretCmd cmd =
       let s = encodeUtf8 (T.pack secret)
       let t :: Word64 = fromIntegral timeRange
       let stegoParams = StegoParams s t 6 LsbEncoding 0
-      runDecodeStreamCmd stegoParams inputFile
+      runDecodeStreamCmd False stegoParams inputFile
       pure CmdSuccess
