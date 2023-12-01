@@ -6,12 +6,10 @@ where
 
 import Audiocate (version)
 import Control.Monad (void)
-import GI.Adw qualified as Adw
+import qualified GI.Adw as Adw
 import System.Environment (getArgs, getProgName)
 import MainWindow (initMainWindow, MainWindow (window))
-import Data.Audio.Wave (WaveAudio)
-import Control.Concurrent (newEmptyMVar, MVar)
-import AppState (AppState (..), newAppState)
+import AppState (newAppState)
 
 
 activate :: Adw.Application -> IO ()
@@ -27,8 +25,8 @@ main = do
       [ #applicationId Adw.:= "eldr-io.audiocate.gui",
         Adw.On #activate (activate ?self)
       ]
-  sm <- Adw.getApplicationStyleManager app
-  Adw.setStyleManagerColorScheme sm Adw.ColorSchemeForceLight
+  -- sm <- Adw.getApplicationStyleManager app
+  -- Adw.setStyleManagerColorScheme sm Adw.ColorSchemeForceLight
   putStrLn $ "Audiocate GUI v" ++ version
   args <- getArgs
   progName <- getProgName
