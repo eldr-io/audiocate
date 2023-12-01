@@ -114,6 +114,7 @@ test-suite audiocate-test
       , EncodeCmdSpec
       , EncodeStreamCmdSpec
       , DecodeStreamCmdSpec
+      , StegoSpec
     ghc-options:
         -O -threaded -rtsopts -with-rtsopts=-N
     build-tool-depends:
@@ -125,6 +126,7 @@ test-suite audiocate-test
       , mtl
       , hspec
       , hspec-discover
+      , time
 
 benchmark bench
   default-language: GHC2021

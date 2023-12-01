@@ -1,7 +1,7 @@
 Name,Mean (ps),2*Stdev (ps),Allocated,Copied,Peak Memory
-All.EncodeStreamCmd.encodestream sample1,13331950550,987441022,92316505,6239,39845888
-All.EncodeStreamCmd.encodestream sample2,157690056200,8586908444,1026804541,33874,39845888
-All.EncodeStreamCmd.encodestream sample3,24051070500,1060021440,149445797,9319,39845888
-All.DecodeStreamCmd.decodestream sample1,312094441,12317934,1628426,44,78643200
-All.DecodeStreamCmd.decodestream sample2,3774645087,373300452,17228076,527,78643200
-All.DecodeStreamCmd.decodestream sample3,486733567,14118744,2620858,73,78643200
+All.EncodeStreamCmd.encodestream sample1,15040768593,894801872,93855144,6416,39845888
+All.EncodeStreamCmd.encodestream sample2,158199655200,12267294320,1019767834,36963,39845888
+All.EncodeStreamCmd.encodestream sample3,24438984900,1077451814,149445165,9364,39845888
+All.DecodeStreamCmd.decodestream sample1,331582348,22610820,1614401,46,78643200
+All.DecodeStreamCmd.decodestream sample2,3874140531,333099360,17228100,525,78643200
+All.DecodeStreamCmd.decodestream sample3,495499743,25715734,2620860,74,78643200

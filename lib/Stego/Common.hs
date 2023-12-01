@@ -58,23 +58,23 @@ type DecodedPayload = (Word64, TotpPayload)
 type DecodedFrame = (Int, [Int16], DecodedPayload)
 
 -- | StegoParams instance used to capture parameters
-data StegoParams = StegoParams Secret Word64 Word8 EncodingType Payload
+data StegoParams = StegoParams Secret Word64 Word8 EncodingType Payload Bool
   deriving (Show, Eq)
 
 -- | Extracts the EncodingType of provided StegoParams
 getEncodingType :: StegoParams -> EncodingType
-getEncodingType (StegoParams _ _ _ LsbEncoding _) = LsbEncoding
+getEncodingType (StegoParams _ _ _ LsbEncoding _ _) = LsbEncoding
 getEncodingType _ = EchoHideEncoding
 
 -- | Calculates a TOTP value for the StegoParams at the provided UTCTime
 calculateTotp :: StegoParams -> UTCTime -> TotpPayload
-calculateTotp (StegoParams secret range numDigits _ _) time =
+calculateTotp (StegoParams secret range numDigits _ _ _) time =
   totp SHA1 secret time range numDigits
 
 -- | Checks if the provided TOTP value is valid for the given time and
 -- stego params
 checkTotp :: StegoParams -> UTCTime -> TotpPayload -> Bool
-checkTotp (StegoParams secret range numDigits _ _) time =
+checkTotp (StegoParams secret range numDigits _ _ _) time =
   totpCheck SHA1 secret (0, 0) time range numDigits
 
 -- | Converts a UTCTime into Word64 representation of POSIX seconds since epoch

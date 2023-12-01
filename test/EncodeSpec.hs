@@ -31,7 +31,7 @@ spec =
    do
     let secret = encodeUtf8 (T.pack "test-secret")
     let timeValid :: Word64 = 5
-    let stegoParams = StegoParams secret timeValid 6 LsbEncoding 0
+    let stegoParams = StegoParams secret timeValid 6 LsbEncoding 0 False
     context "when passing it an empty frames list" $
       it "should return an empty encode result" $ do
         encoder <- newEncoder stegoParams
