@@ -13,6 +13,18 @@ build-cli:
 build-gui:
 	@cabal build audiocate-gui
 
+PHONY: install-cli
+install-cli:
+	@cabal install exe:audiocate --overwrite-policy=always
+
+PHONY: install-gui
+install-gui:
+	@cabal install audiocate-gui --overwrite-policy=always
+
+install:
+	@cabal install exe:audiocate --overwrite-policy=always
+	@cabal install audiocate-gui --overwrite-policy=always
+
 benchmark-test:
 	@cabal run bench -- --svg test/output/bench_results.svg --csv test/output/bench_results.csv +RTS -T
 

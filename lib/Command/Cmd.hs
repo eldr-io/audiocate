@@ -39,8 +39,8 @@ instance Show CommandReturnCode where
   show CmdFail = "Command failed."
   show _ = "Command unknown or fault"
 
-interpretCmd :: Command -> IO CommandReturnCode
-interpretCmd cmd =
+interpretCmd :: Command -> Bool -> IO CommandReturnCode
+interpretCmd cmd isRealTime =
   case cmd of
     Help -> do
       putStrLn "run Help"
@@ -48,24 +48,24 @@ interpretCmd cmd =
     (Encode secret timeRange inputFile outputFile) -> do
       let s = encodeUtf8 (T.pack secret)
       let t :: Word64 = fromIntegral timeRange
-      let stegoParams = StegoParams s t 6 LsbEncoding 0 False
+      let stegoParams = StegoParams s t 6 LsbEncoding 0 isRealTime
       runEncodeCmd stegoParams inputFile outputFile
       pure CmdSuccess
     (EncodeStream secret timeRange inputFile outputFile) -> do
       let s = encodeUtf8 (T.pack secret)
       let t :: Word64 = fromIntegral timeRange
-      let stegoParams = StegoParams s t 6 LsbEncoding 0 False
+      let stegoParams = StegoParams s t 6 LsbEncoding 0 isRealTime
       runEncodeStreamCmd False stegoParams inputFile outputFile
       pure CmdSuccess
     (Decode secret timeRange inputFile) -> do
       let s = encodeUtf8 (T.pack secret)
       let t :: Word64 = fromIntegral timeRange
-      let stegoParams = StegoParams s t 6 LsbEncoding 0 False
+      let stegoParams = StegoParams s t 6 LsbEncoding 0 isRealTime
       runDecodeCmd stegoParams inputFile
       pure CmdSuccess
     (DecodeStream secret timeRange inputFile) -> do
       let s = encodeUtf8 (T.pack secret)
       let t :: Word64 = fromIntegral timeRange
-      let stegoParams = StegoParams s t 6 LsbEncoding 0 False
+      let stegoParams = StegoParams s t 6 LsbEncoding 0 isRealTime
       runDecodeStreamCmd False stegoParams inputFile
       pure CmdSuccess

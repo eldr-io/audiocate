@@ -157,7 +157,7 @@ onDecodeBtnClicked appState decodeView = do
                (-1)
              let s = encodeUtf8 secret
              let t :: Word64 = fromIntegral secondsValidInt
-             let stegoParams = StegoParams s t 6 LsbEncoding 123
+             let stegoParams = StegoParams s t 6 LsbEncoding 123 False
              decoder <- newDecoder stegoParams
              let wa = loadedAudioWave audio
              let frames = audioFrames wa

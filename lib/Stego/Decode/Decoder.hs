@@ -12,7 +12,7 @@ module Stego.Decode.Decoder
   , getResultStats
   , getResultFrames
   , decodeFrame'
-  , Decoder (..)
+  , Decoder(..)
   ) where
 
 import Control.Concurrent (forkIO)
@@ -36,6 +36,7 @@ import Data.Audio.Wave (Frame, Frames)
 import Data.List (foldl')
 import Text.Printf (printf)
 
+import Data.Time (getCurrentTime)
 import Stego.Common
   ( DecodedFrame
   , EncodingType(..)
@@ -201,11 +202,21 @@ decodeFrame' stegoParams frame
 runDecoder :: Decoder -> IO ()
 runDecoder dec = loop
   where
-    toResult frame Nothing = SkippedFrame frame
-    toResult _ (Just (i, samples, (time, payload))) =
-      DecodedFrameR
-        (i, samples, (time, payload))
-        (checkTotp (stegoParams dec) (word64ToUtcTime time) payload)
+    toResult frame Nothing = pure $ SkippedFrame frame
+    toResult _ (Just (i, samples, (time, payload)))
+    -- check if this is set to use real-time
+     = do
+      if time == 0
+        then do
+          time' <- getCurrentTime
+          pure $
+            DecodedFrameR
+              (i, samples, (time, payload))
+              (checkTotp (stegoParams dec) time' payload)
+        else pure $
+             DecodedFrameR
+               (i, samples, (time, payload))
+               (checkTotp (stegoParams dec) (word64ToUtcTime time) payload)
     loop = do
       op <- atomically $ readTQueue (opQ dec)
       case op of
@@ -217,7 +228,8 @@ runDecoder dec = loop
               loop
             else do
               let decoded = decodeFrame' (stegoParams dec) f
-              atomically $ writeTChan (resultChan dec) (toResult f decoded)
+              result <- toResult f decoded
+              atomically $ writeTChan (resultChan dec) result
               loop
         (StopDecoder m) -> do
           atomically $ do

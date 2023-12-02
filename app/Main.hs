@@ -30,6 +30,7 @@ import Audiocate (Command(..), run, version)
 data Opts =
   Opts
     { optVerboseFlag :: !Bool
+    , optRealTimeFlag :: !Bool
     , optCommand :: !Command
     }
 
@@ -40,8 +41,9 @@ main = do
   putStrLn $
     "\nRunning command " ++
     show (optCommand opts) ++
-    " (verbose: " ++ show (optVerboseFlag opts) ++ ")\n"
-  rc <- run (optCommand opts)
+    " (verbose: " ++ show (optVerboseFlag opts) ++ ")\n" ++
+    " (realtime: " ++ show (optRealTimeFlag opts) ++ ")\n"
+  rc <- run (optCommand opts) (optRealTimeFlag opts)
   print rc
   where
     optsParser :: ParserInfo Opts
@@ -57,6 +59,7 @@ main = do
     programOpts :: Parser Opts
     programOpts =
       Opts <$>
+      switch (long "realtime" <> help "Set for encoding/decoding in realtime") <*>
       switch (long "verbose" <> help "Set to print verbose log messages") <*>
       hsubparser
         (encodeCommand <>

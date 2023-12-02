@@ -35,5 +35,5 @@ spec =
         let inputFile = "test/corpus/sample1.wav"
         let outputFile = "test/output/sample1_out.wav"
         let encodeCmd = Encode "test-secret" 5 inputFile outputFile
-        result <- interpretCmd encodeCmd
+        result <- interpretCmd encodeCmd False
         result `shouldBe` CmdSuccess

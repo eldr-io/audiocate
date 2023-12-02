@@ -36,6 +36,7 @@ import Stego.Common
   , StegoParams(..)
   , calculateTotp
   , getEncodingType
+  , getIsRealTime
   , shouldSkipFrame
   , utcTimeToWord64
   )
@@ -110,27 +111,31 @@ encodeFrame' stegoParams time frame
     Stego.Encode.LSB.encodeFrame time64 totp frame
   | otherwise = undefined
   where
-    time64 = utcTimeToWord64 time
+    time64 =
+      if getIsRealTime stegoParams
+        then 0
+        else utcTimeToWord64 time
     totp = calculateTotp stegoParams time
 
 -- | The main run loop function for running an Encoder
 runEncoder :: Encoder -> IO ()
 runEncoder enc = loop
- where
-  loop = do
-    op <- atomically $ readTQueue (encoderOpQ enc)
-    case op of
-      (EncodeFrame (i, f)) -> do
-        time <- getCurrentTime
-        let shouldSkip = shouldSkipFrame (i, f)
-        if shouldSkip
-          then do
-            atomically $ writeTChan (resultChan enc) (SkippedFrame (i, f))
-            loop
-          else do
-            let encoded = encodeFrame' (stegoParams enc) time (i, f)
-            atomically $ writeTChan (resultChan enc) (EncodedFrame encoded)
-            loop
-      (StopEncoder m) -> atomically $ do
-        writeTChan (resultChan enc) StoppingEncoder
-        putTMVar m ()
+  where
+    loop = do
+      op <- atomically $ readTQueue (encoderOpQ enc)
+      case op of
+        (EncodeFrame (i, f)) -> do
+          time <- getCurrentTime
+          let shouldSkip = shouldSkipFrame (i, f)
+          if shouldSkip
+            then do
+              atomically $ writeTChan (resultChan enc) (SkippedFrame (i, f))
+              loop
+            else do
+              let encoded = encodeFrame' (stegoParams enc) time (i, f)
+              atomically $ writeTChan (resultChan enc) (EncodedFrame encoded)
+              loop
+        (StopEncoder m) ->
+          atomically $ do
+            writeTChan (resultChan enc) StoppingEncoder
+            putTMVar m ()

@@ -10,8 +10,8 @@ module Audiocate
 import Command.Cmd (Command(..), CommandReturnCode(..), interpretCmd)
 
 -- | Runs the provided Command 
-run :: Command -> IO CommandReturnCode
-run = interpretCmd
+run :: Command -> Bool -> IO CommandReturnCode
+run cmd isRealTime = interpretCmd cmd isRealTime
 
 -- | Prints the version string
 version :: String

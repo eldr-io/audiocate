@@ -34,5 +34,5 @@ spec =
       it "should return a result that decoded all of the encoded frames" $ do
         let inputFile = "test/corpus/sample2_stream_in.wav"
         let encodeCmd = DecodeStream "test-secret" 5 inputFile
-        result <- interpretCmd encodeCmd
+        result <- interpretCmd encodeCmd False
         result `shouldBe` CmdSuccess

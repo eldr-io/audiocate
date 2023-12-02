@@ -36,4 +36,4 @@ main = do
         Adw.On #activate (toggleTheme ?self args)
       ]
   putStrLn $ "Audiocate GUI v" ++ version
-  void (app.run $ Just $ progName : [])
+  void (app.run $ Just [progName])

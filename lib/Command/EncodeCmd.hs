@@ -28,12 +28,14 @@ import Stego.Encode.Encoder
   , stopEncoder
   )
 
-runEncodeCmd :: StegoParams -> FilePath -> FilePath -> IO ()
+runEncodeCmd :: StegoParams -> FilePath -> FilePath -> IO DC.DecoderResultList
 runEncodeCmd stegoParams inputFile outputFile = do
   startTime <- getCurrentTime
   audio <- runExceptT (waveAudioFromFile inputFile)
   case audio of
-    Left err -> putStrLn err
+    Left err -> do 
+      putStrLn err
+      pure []
     Right wa -> do
       let frames = audioFrames wa
       result <- doEncodeFrames stegoParams (take (length frames `div` 2) frames)
@@ -42,7 +44,8 @@ runEncodeCmd stegoParams inputFile outputFile = do
       putStrLn "\nEncode Result "
       putStrLn $ "\nTotal Frames in file: " ++ show (length $ audioFrames wa)
       let combined = result ++ result2
-      print $ DC.getResultStats combined
+      let resultStats = DC.getResultStats combined
+      print resultStats
       putStrLn $ "Writing encoded file to " ++ outputFile ++ "..."
       let wa' =
             WaveAudio
@@ -55,11 +58,14 @@ runEncodeCmd stegoParams inputFile outputFile = do
               }
       write <- runExceptT (waveAudioToFile outputFile wa')
       case write of
-        Left err -> putStrLn err
+        Left err -> do 
+          putStrLn err
+          pure []
         Right _ -> do
           endTime <- getCurrentTime
           putStrLn $
             "Completed encode in " <> show (diffUTCTime endTime startTime)
+          pure combined
 
 doEncodeFrames :: StegoParams -> Frames -> IO DC.DecoderResultList
 doEncodeFrames stegoParams frames = do
