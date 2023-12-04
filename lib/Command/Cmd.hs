@@ -9,10 +9,11 @@ import Data.Text.Encoding (encodeUtf8)
 import Data.Word (Word64)
 
 import Command.DecodeCmd (runDecodeCmd)
+import Command.DecodeStreamCmd (runDecodeStreamCmd)
 import Command.EncodeCmd (runEncodeCmd)
 import Command.EncodeStreamCmd (runEncodeStreamCmd)
 import Stego.Common (EncodingType(LsbEncoding), StegoParams(..))
-import Command.DecodeStreamCmd (runDecodeStreamCmd)
+import qualified Stego.Decode.Decoder as DC
 
 data Command
   = Help
@@ -30,13 +31,17 @@ instance Show Command where
 
 data CommandReturnCode
   = CmdSuccess
-  | CmdFail
+  | EncodeCmdSuccess DC.DecoderResultList
+  | DecodeCmdSuccess DC.DecoderResultList
+  | CmdFail String
   | CmdUnknown
   deriving (Eq)
 
 instance Show CommandReturnCode where
   show CmdSuccess = "Command completed successfully."
-  show CmdFail = "Command failed."
+  show (CmdFail err) = "Command failed with error. " ++ err
+  show (EncodeCmdSuccess _) = "Encode command completed successfully."
+  show (DecodeCmdSuccess _) = "Decode command completed successfully."
   show _ = "Command unknown or fault"
 
 interpretCmd :: Command -> Bool -> IO CommandReturnCode
@@ -49,8 +54,10 @@ interpretCmd cmd isRealTime =
       let s = encodeUtf8 (T.pack secret)
       let t :: Word64 = fromIntegral timeRange
       let stegoParams = StegoParams s t 6 LsbEncoding 0 isRealTime
-      runEncodeCmd stegoParams inputFile outputFile
-      pure CmdSuccess
+      result <- runEncodeCmd stegoParams inputFile outputFile
+      case result of
+        Left err -> pure (CmdFail err)
+        Right res -> pure (EncodeCmdSuccess res)
     (EncodeStream secret timeRange inputFile outputFile) -> do
       let s = encodeUtf8 (T.pack secret)
       let t :: Word64 = fromIntegral timeRange
@@ -61,8 +68,10 @@ interpretCmd cmd isRealTime =
       let s = encodeUtf8 (T.pack secret)
       let t :: Word64 = fromIntegral timeRange
       let stegoParams = StegoParams s t 6 LsbEncoding 0 isRealTime
-      runDecodeCmd stegoParams inputFile
-      pure CmdSuccess
+      result <- runDecodeCmd stegoParams inputFile
+      case result of
+        Left err -> pure (CmdFail err)
+        Right res -> pure (DecodeCmdSuccess res)
     (DecodeStream secret timeRange inputFile) -> do
       let s = encodeUtf8 (T.pack secret)
       let t :: Word64 = fromIntegral timeRange

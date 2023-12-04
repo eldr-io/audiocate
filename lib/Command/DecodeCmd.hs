@@ -29,18 +29,20 @@ import Stego.Decode.Decoder
   , stopDecoder
   )
 
-runDecodeCmd :: StegoParams -> FilePath -> IO ()
+runDecodeCmd :: StegoParams -> FilePath -> IO (Either String DecoderResultList)
 runDecodeCmd stegoParams inputFile = do
   startTime <- getCurrentTime
   audio <- runExceptT (waveAudioFromFile inputFile)
   case audio of
-    Left err -> putStrLn err
+    Left err -> do 
+      pure (Left err)
     Right wa -> do
       result <- doDecodeWaveAudio stegoParams wa
       putStrLn "\nDecode Result "
       print $ getResultStats result
       endTime <- getCurrentTime
       putStrLn $ "Completed decode in " <> show (diffUTCTime endTime startTime)
+      pure (Right result)
 
 doDecodeWaveAudio :: StegoParams -> WaveAudio -> IO DecoderResultList
 doDecodeWaveAudio stegoParams waveAudio = do

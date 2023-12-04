@@ -2,21 +2,53 @@ module RealTimeSpec
   ( spec
   ) where
 import Test.Hspec ( describe, it, shouldBe, Spec, context, shouldNotBe )
-import Audiocate (Command(Encode, Decode), CommandReturnCode (CmdSuccess))
+import Audiocate (Command(Encode, Decode), CommandReturnCode (CmdSuccess, EncodeCmdSuccess, DecodeCmdSuccess))
 import Command.Cmd (interpretCmd)
 import Control.Concurrent (threadDelay)
+import Stego.Decode.Decoder (DecoderResultStats(DRS), getResultStats)
 
 spec :: Spec
 spec =
-  describe "Tests encoding and decoding with the real-time flag set" $ do
+  describe "encoding and decoding with the real-time flag set" $ do
      context "when passing it an encode command targeting the sample1.wav test file" $
-        it "should return an encode result that encoded the expected 7 frames" $ do
+        it "should successfully decode the first time within the time window, and then fail the second time" $ do
           let inputFile = "test/corpus/sample1.wav"
           let outputFile = "test/output/sample1_rt_out.wav"
-          let encodeCmd = Encode "test-secret" 2 inputFile outputFile
+          let secret = "21ø!2312422mmsfiuetest#@@1@sasf//"
+          let encodeCmd = Encode secret 2 inputFile outputFile
           result <- interpretCmd encodeCmd True
-          result `shouldBe` CmdSuccess
-          threadDelay 5000000
-          let decodeCmd = Decode "test-secret" 2 outputFile
+          case result of
+            EncodeCmdSuccess res -> do
+              let (DRS total verified unverified skipped) = getResultStats res
+              total `shouldBe` 18
+              verified `shouldBe` 7
+              unverified `shouldBe` 0
+              skipped `shouldBe` 11
+            _ -> True `shouldBe` False -- fail the test
+          
+          -- first pass at decode within time frame
+          let decodeCmd = Decode secret 2 outputFile
           result <- interpretCmd decodeCmd True
-          result `shouldNotBe` CmdSuccess
+          case result of
+            DecodeCmdSuccess res -> do
+              let (DRS total verified unverified skipped) = getResultStats res
+              total `shouldBe` 18
+              verified `shouldBe` 7
+              unverified `shouldBe` 0
+              skipped `shouldBe` 11
+            _ -> True `shouldBe` False -- fail the test
+
+          -- wait long enough for the time window to close
+          threadDelay 5000000
+          -- This is after the time window has closed, so we should have no verified 
+          -- chunks in the decode
+          let decodeCmd = Decode secret 2 outputFile
+          result <- interpretCmd decodeCmd True
+          case result of
+            DecodeCmdSuccess res -> do
+              let (DRS total verified unverified skipped) = getResultStats res
+              total `shouldBe` 18
+              verified `shouldBe` 0
+              unverified `shouldBe` 7
+              skipped `shouldBe` 11
+            _ -> True `shouldBe` False -- fail the test

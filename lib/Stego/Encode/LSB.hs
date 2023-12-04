@@ -28,4 +28,3 @@ encodeFrame time payload (i, frame) = (i, encTime ++ enc ++ drop 96 frame)
     encTime = encodeBits $ zip frame (zs (tSize - 1) time)
     zs (-1) _ = []
     zs n p = (p .&. bit n /= 0) : zs (n - 1) p
-
