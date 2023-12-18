@@ -15,7 +15,7 @@ spec =
           let inputFile = "test/corpus/sample1.wav"
           let outputFile = "test/output/sample1_rt_out.wav"
           let secret = "21ø!2312422mmsfiuetest#@@1@sasf//"
-          let encodeCmd = Encode secret 2 inputFile outputFile
+          let encodeCmd = Encode secret 5 inputFile outputFile
           result <- interpretCmd encodeCmd True
           case result of
             EncodeCmdSuccess res -> do
@@ -27,7 +27,7 @@ spec =
             _ -> True `shouldBe` False -- fail the test
           
           -- first pass at decode within time frame
-          let decodeCmd = Decode secret 2 outputFile
+          let decodeCmd = Decode secret 5 outputFile
           result <- interpretCmd decodeCmd True
           case result of
             DecodeCmdSuccess res -> do
@@ -39,10 +39,10 @@ spec =
             _ -> True `shouldBe` False -- fail the test
 
           -- wait long enough for the time window to close
-          threadDelay 5000000
+          threadDelay 7000000
           -- This is after the time window has closed, so we should have no verified 
           -- chunks in the decode
-          let decodeCmd = Decode secret 2 outputFile
+          let decodeCmd = Decode secret 5 outputFile
           result <- interpretCmd decodeCmd True
           case result of
             DecodeCmdSuccess res -> do

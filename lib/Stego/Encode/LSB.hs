@@ -1,6 +1,6 @@
 -- | Module for encoding into Audio samples using
 -- - the Least Significant Bit (LSB) approach. Payloads are embedded
--- - into the 16th LSB of each 16-bit sample provided.
+-- - into the 16th LSB of each 16-bit sample in the frame provided.
 module Stego.Encode.LSB
   ( encodeFrame
   ) where

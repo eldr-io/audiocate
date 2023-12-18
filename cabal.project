@@ -1,2 +1,12 @@
 allow-newer: all
+tests: True
 packages: .
+package audiocate
+  coverage: True
+  library-coverage: True
+package attoparsec
+  coverage: False
+  library-coverage: False
+package *
+  coverage: False
+  library-coverage: False

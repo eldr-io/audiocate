@@ -38,5 +38,5 @@ spec =
         result <- interpretCmd encodeCmd False
         result `shouldBe` CmdSuccess
         let decodeCmd = DecodeStream "test-secret" 5 outputFile
-        decode_result <- interpretCmd decodeCmd False
-        decode_result `shouldBe` CmdSuccess
+        decodeResult <- interpretCmd decodeCmd False
+        decodeResult `shouldBe` CmdSuccess
