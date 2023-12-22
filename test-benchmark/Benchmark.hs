@@ -9,19 +9,19 @@ import Test.Tasty.Bench
 
 runEncodeCmd inputFile outputFile secret seconds = do
   let encodeCmd = Encode secret seconds inputFile outputFile
-  interpretCmd encodeCmd
+  interpretCmd encodeCmd False
 
 runEncodeStreamCmd inputFile outputFile secret seconds = do
   let encodeCmd = EncodeStream secret seconds inputFile outputFile
-  interpretCmd encodeCmd
+  interpretCmd encodeCmd False
 
 runDecodeCmd inputFile secret seconds = do
   let decodeCmd = Decode secret seconds inputFile
-  interpretCmd decodeCmd
+  interpretCmd decodeCmd False
 
 runDecodeStreamCmd inputFile secret seconds = do
   let decodeCmd = DecodeStream secret seconds inputFile
-  interpretCmd decodeCmd
+  interpretCmd decodeCmd False
 
 testSecret :: String
 testSecret = "125@#1!12asde!3214[12345%¤¤21qassdf==:?213!3324124]"
