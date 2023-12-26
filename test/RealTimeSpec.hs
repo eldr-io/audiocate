@@ -12,7 +12,7 @@ spec =
   describe "encoding and decoding with the real-time flag set" $ do
      context "when passing it an encode command targeting the sample1.wav test file" $
         it "should successfully decode the first time within the time window, and then fail the second time" $ do
-          let inputFile = "test/corpus/sample1.wav"
+          let inputFile = "test/corpus/sample1_rt.wav"
           let outputFile = "test/output/sample1_rt_out.wav"
           let secret = "21ø!2312422mmsfiuetest#@@1@sasf//"
           let encodeCmd = Encode secret 5 inputFile outputFile

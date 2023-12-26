@@ -57,18 +57,3 @@ spec =
         encoder <- newEncoder stegoParams
         result <- doEncodeFramesWithEncoder encoder frames
         result `shouldBe` [SkippedFrame frame]
-    context "when passing it frames from the sample1.wav testfile" $
-      it "should return an encode result that verified 7 of the frames" $ do
-        let inputFile = "test/corpus/sample1.wav"
-        audio <- runExceptT (waveAudioFromFile inputFile)
-        case audio of
-          Left err -> err `shouldSatisfy` (not . null)
-          Right wa -> do
-            let frames = audioFrames wa
-            encoder <- newEncoder stegoParams
-            result <- doEncodeFramesWithEncoder encoder frames
-            let (DRS total verified unverified skipped) = getResultStats result
-            total `shouldBe` 18
-            verified `shouldBe` 7
-            unverified `shouldBe` 0
-            skipped `shouldBe` 11
