@@ -15,4 +15,4 @@ run cmd isRealTime = interpretCmd cmd isRealTime
 
 -- | Prints the version string
 version :: String
-version = "0.1.0.0-alpha"
+version = "0.2.0.0-alpha"
