@@ -113,6 +113,8 @@ test-suite audiocate-test
       EncodeSpec
       , EncodeCmdSpec
       , EncodeStreamCmdSpec
+      , DecodeSpec
+      , DecodeCmdSpec
       , DecodeStreamCmdSpec
       , StegoSpec
       , RealTimeSpec

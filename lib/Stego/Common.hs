@@ -61,7 +61,7 @@ type DecodedPayload = (Word64, TotpPayload)
 
 type DecodedFrame = (Int, [Int16], DecodedPayload)
 
--- | StegoParams instance used to capture parameters
+-- | StegoParams ADT used to capture parameters
 data StegoParams =
   StegoParams Secret Word64 Word8 EncodingType Payload Bool
   deriving (Show, Eq)

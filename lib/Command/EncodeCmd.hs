@@ -28,7 +28,11 @@ import Stego.Encode.Encoder
   , stopEncoder
   )
 
-runEncodeCmd :: StegoParams -> FilePath -> FilePath -> IO (Either String DC.DecoderResultList)
+runEncodeCmd ::
+     StegoParams
+  -> FilePath
+  -> FilePath
+  -> IO (Either String DC.DecoderResultList)
 runEncodeCmd stegoParams inputFile outputFile = do
   startTime <- getCurrentTime
   audio <- runExceptT (waveAudioFromFile inputFile)
@@ -56,7 +60,7 @@ runEncodeCmd stegoParams inputFile outputFile = do
               }
       write <- runExceptT (waveAudioToFile outputFile wa')
       case write of
-        Left err -> pure (Left err) 
+        Left err -> pure (Left err)
         Right _ -> do
           endTime <- getCurrentTime
           putStrLn $
@@ -71,13 +75,13 @@ doEncodeFrames stegoParams frames = do
   decoder <- DC.newDecoder stegoParams
   void $ DC.mapDecoderOpQToResultChan decoder resC
   resD <- DC.getResultChannel decoder
-  x <- newEmptyTMVarIO
-  void $ forkIO $ decoderResultLoop resD [] (length frames) x
+  decoderStoppedTMVar <- newEmptyTMVarIO
+  void $ forkIO $ decoderResultLoop resD [] (length frames) decoderStoppedTMVar
   void $ forkIO $ printLoop printChan (0 :: Int) (length frames)
   mapM_ (enqueueFrame encoder) frames
   t <- stopEncoder encoder
   void $ atomically $ takeTMVar t
-  atomically $ takeTMVar x
+  atomically $ takeTMVar decoderStoppedTMVar
   where
     decoderResultLoop resD fs total t = do
       res <- atomically $ readTChan resD
