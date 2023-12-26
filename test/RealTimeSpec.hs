@@ -16,7 +16,7 @@ spec =
           let outputFile = "test/output/sample1_rt_out.wav"
           let secret = "21ø!2312422mmsfiuetest#@@1@sasf//"
           let encodeCmd = Encode secret 5 inputFile outputFile
-          result <- interpretCmd encodeCmd True
+          result <- interpretCmd encodeCmd True False
           case result of
             EncodeCmdSuccess res -> do
               let (DRS total verified unverified skipped) = getResultStats res
@@ -28,7 +28,7 @@ spec =
           
           -- first pass at decode within time frame
           let decodeCmd = Decode secret 5 outputFile
-          result <- interpretCmd decodeCmd True
+          result <- interpretCmd decodeCmd True False
           case result of
             DecodeCmdSuccess res -> do
               let (DRS total verified unverified skipped) = getResultStats res
@@ -43,7 +43,7 @@ spec =
           -- This is after the time window has closed, so we should have no verified 
           -- chunks in the decode
           let decodeCmd = Decode secret 5 outputFile
-          result <- interpretCmd decodeCmd True
+          result <- interpretCmd decodeCmd True False
           case result of
             DecodeCmdSuccess res -> do
               let (DRS total verified unverified skipped) = getResultStats res

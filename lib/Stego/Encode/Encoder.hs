@@ -70,9 +70,9 @@ data Encoder =
 -- the provided StegoParams
 newEncoder :: StegoParams -> IO Encoder
 newEncoder stegoParams = do
-  frameQ <- newTQueueIO
-  encFrameChan <- newBroadcastTChanIO
-  let enc = Encoder stegoParams frameQ encFrameChan
+  opQ <- newTQueueIO
+  resultChan <- newBroadcastTChanIO
+  let enc = Encoder stegoParams opQ resultChan
   void $ forkIO $ runEncoder enc
   return enc
 

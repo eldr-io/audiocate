@@ -1,114 +1,15 @@
-<svg xmlns="http://www.w3.org/2000/svg" height="667" width="960.0" font-size="16" font-family="sans-serif" stroke-width="2">
+<svg xmlns="http://www.w3.org/2000/svg" height="62" width="960.0" font-size="16" font-family="sans-serif" stroke-width="2">
 <g transform="translate(10.0 0)">
-<text fill="hsl(0, 100%, 40%)" y="22">EncodeStreamCmd.encodestream sample1 14.7 ms</text>
-<g>
-<title>14.7 ms ± 320 μs</title>
-<rect y="28" rx="5" height="22" width="17.167307820710707" fill="hsl(0, 100%, 80%)" stroke="hsl(0, 100%, 55%)" />
-<g stroke="hsl(0, 100%, 40%)"><line x1="16.793140339163056" x2="17.54147530225836" y1="39" y2="39" />
-<line x1="16.793140339163056" x2="16.793140339163056" y1="33" y2="45" />
-<line x1="17.54147530225836" x2="17.54147530225836" y1="33" y2="45" />
-</g>
-</g>
-<text fill="hsl(30, 100%, 40%)" y="77">EncodeStreamCmd.encodestream sample2 155  ms</text>
-<g>
-<title>155  ms ± 4.6 ms</title>
-<rect y="83" rx="5" height="22" width="181.52211428844896" fill="hsl(30, 100%, 80%)" stroke="hsl(30, 100%, 55%)" />
-<g stroke="hsl(30, 100%, 40%)"><line x1="176.16230088731118" x2="186.88192768958675" y1="94" y2="94" />
-<line x1="176.16230088731118" x2="176.16230088731118" y1="88" y2="100" />
-<line x1="186.88192768958675" x2="186.88192768958675" y1="88" y2="100" />
-</g>
-</g>
-<text fill="hsl(60, 100%, 40%)" y="132">EncodeStreamCmd.encodestream sample3 23.9 ms</text>
-<g>
-<title>23.9 ms ± 2.2 ms</title>
-<rect y="138" rx="5" height="22" width="27.919818012577583" fill="hsl(60, 100%, 80%)" stroke="hsl(60, 100%, 55%)" />
-<g stroke="hsl(60, 100%, 40%)"><line x1="25.387608747017335" x2="30.45202727813783" y1="149" y2="149" />
-<line x1="25.387608747017335" x2="25.387608747017335" y1="143" y2="155" />
-<line x1="30.45202727813783" x2="30.45202727813783" y1="143" y2="155" />
-</g>
-</g>
-<text fill="hsl(90, 100%, 40%)" y="187">EncodeStreamCmd.encodestream sample4 5.67 ms</text>
-<g>
-<title>5.67 ms ± 505 μs</title>
-<rect y="193" rx="5" height="22" width="6.623154167394976" fill="hsl(90, 100%, 80%)" stroke="hsl(90, 100%, 55%)" />
-<g stroke="hsl(90, 100%, 40%)"><line x1="6.033426310179932" x2="7.212882024610019" y1="204" y2="204" />
-<line x1="6.033426310179932" x2="6.033426310179932" y1="198" y2="210" />
-<line x1="7.212882024610019" x2="7.212882024610019" y1="198" y2="210" />
-</g>
-</g>
-<text fill="hsl(120, 100%, 40%)" y="242">EncodeStreamCmd.encodestream sample5 62.2 ms</text>
-<g>
-<title>62.2 ms ± 1.5 ms</title>
-<rect y="248" rx="5" height="22" width="72.64372212530198" fill="hsl(120, 100%, 80%)" stroke="hsl(120, 100%, 55%)" />
-<g stroke="hsl(120, 100%, 40%)"><line x1="70.86232017486459" x2="74.42512407573936" y1="259" y2="259" />
-<line x1="70.86232017486459" x2="70.86232017486459" y1="253" y2="265" />
-<line x1="74.42512407573936" x2="74.42512407573936" y1="253" y2="265" />
-</g>
-</g>
-<g fill="hsl(150, 100%, 40%)">
-<text y="297">EncodeStreamCmd.encodestream sample6</text>
-<text y="297" x="934.1334210472731" text-anchor="end">800  ms</text>
+<g fill="hsl(0, 100%, 40%)">
+<text y="22">EncodeCmd.encode-sample3</text>
+<text y="22" x="936.3048139005427" text-anchor="end">601  ms</text>
 </g>
 <g>
-<title>800  ms ± 5.0 ms</title>
-<rect y="303" rx="5" height="22" width="934.1334210472731" fill="hsl(150, 100%, 80%)" stroke="hsl(150, 100%, 55%)" />
-<g stroke="hsl(150, 100%, 40%)"><line x1="928.2668420945463" x2="940.0" y1="314" y2="314" />
-<line x1="928.2668420945463" x2="928.2668420945463" y1="308" y2="320" />
-<line x1="940.0" x2="940.0" y1="308" y2="320" />
-</g>
-</g>
-<text fill="hsl(180, 100%, 40%)" y="352">DecodeStreamCmd.decodestream sample1 326  μs</text>
-<g>
-<title>326  μs ±  22 μs</title>
-<rect y="358" rx="5" height="22" width="0.3810757043205713" fill="hsl(180, 100%, 80%)" stroke="hsl(180, 100%, 55%)" />
-<g stroke="hsl(180, 100%, 40%)"><line x1="0.3555812210151439" x2="0.4065701876259987" y1="369" y2="369" />
-<line x1="0.3555812210151439" x2="0.3555812210151439" y1="363" y2="375" />
-<line x1="0.4065701876259987" x2="0.4065701876259987" y1="363" y2="375" />
-</g>
-</g>
-<text fill="hsl(210, 100%, 40%)" y="407">DecodeStreamCmd.decodestream sample2 3.75 ms</text>
-<g>
-<title>3.75 ms ± 262 μs</title>
-<rect y="413" rx="5" height="22" width="4.383575221826367" fill="hsl(210, 100%, 80%)" stroke="hsl(210, 100%, 55%)" />
-<g stroke="hsl(210, 100%, 40%)"><line x1="4.0775316130674275" x2="4.689618830585306" y1="424" y2="424" />
-<line x1="4.0775316130674275" x2="4.0775316130674275" y1="418" y2="430" />
-<line x1="4.689618830585306" x2="4.689618830585306" y1="418" y2="430" />
-</g>
-</g>
-<text fill="hsl(240, 100%, 40%)" y="462">DecodeStreamCmd.decodestream sample3 557  μs</text>
-<g>
-<title>557  μs ±  52 μs</title>
-<rect y="468" rx="5" height="22" width="0.650543128861662" fill="hsl(240, 100%, 80%)" stroke="hsl(240, 100%, 55%)" />
-<g stroke="hsl(240, 100%, 40%)"><line x1="0.5901005250986281" x2="0.7109857326246959" y1="479" y2="479" />
-<line x1="0.5901005250986281" x2="0.5901005250986281" y1="473" y2="485" />
-<line x1="0.7109857326246959" x2="0.7109857326246959" y1="473" y2="485" />
-</g>
-</g>
-<text fill="hsl(270, 100%, 40%)" y="517">DecodeStreamCmd.decodestream sample4 154  μs</text>
-<g>
-<title>154  μs ±  13 μs</title>
-<rect y="523" rx="5" height="22" width="0.18046953283102493" fill="hsl(270, 100%, 80%)" stroke="hsl(270, 100%, 55%)" />
-<g stroke="hsl(270, 100%, 40%)"><line x1="0.16474724334496654" x2="0.19619182231708332" y1="534" y2="534" />
-<line x1="0.16474724334496654" x2="0.16474724334496654" y1="528" y2="540" />
-<line x1="0.19619182231708332" x2="0.19619182231708332" y1="528" y2="540" />
-</g>
-</g>
-<text fill="hsl(300, 100%, 40%)" y="572">DecodeStreamCmd.decodestream sample5 1.46 ms</text>
-<g>
-<title>1.46 ms ± 143 μs</title>
-<rect y="578" rx="5" height="22" width="1.704707164984429" fill="hsl(300, 100%, 80%)" stroke="hsl(300, 100%, 55%)" />
-<g stroke="hsl(300, 100%, 40%)"><line x1="1.5378658562383916" x2="1.8715484737304664" y1="589" y2="589" />
-<line x1="1.5378658562383916" x2="1.5378658562383916" y1="583" y2="595" />
-<line x1="1.8715484737304664" x2="1.8715484737304664" y1="583" y2="595" />
-</g>
-</g>
-<text fill="hsl(330, 100%, 40%)" y="627">DecodeStreamCmd.decodestream sample6 19.9 ms</text>
-<g>
-<title>19.9 ms ± 952 μs</title>
-<rect y="633" rx="5" height="22" width="23.23798732280263" fill="hsl(330, 100%, 80%)" stroke="hsl(330, 100%, 55%)" />
-<g stroke="hsl(330, 100%, 40%)"><line x1="22.126034372306012" x2="24.34994027329925" y1="644" y2="644" />
-<line x1="22.126034372306012" x2="22.126034372306012" y1="638" y2="650" />
-<line x1="24.34994027329925" x2="24.34994027329925" y1="638" y2="650" />
+<title>601  ms ± 2.4 ms</title>
+<rect y="28" rx="5" height="22" width="936.3048139005427" fill="hsl(0, 100%, 80%)" stroke="hsl(0, 100%, 55%)" />
+<g stroke="hsl(0, 100%, 40%)"><line x1="932.6096278010855" x2="940.0" y1="39" y2="39" />
+<line x1="932.6096278010855" x2="932.6096278010855" y1="33" y2="45" />
+<line x1="940.0" x2="940.0" y1="33" y2="45" />
 </g>
 </g>
 </g>

@@ -130,6 +130,7 @@ test-suite audiocate-test
       , hspec
       , hspec-discover
       , time
+      , stm
 
 benchmark bench
   default-language: GHC2021

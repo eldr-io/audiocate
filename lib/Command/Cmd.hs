@@ -44,8 +44,8 @@ instance Show CommandReturnCode where
   show (DecodeCmdSuccess _) = "Decode command completed successfully."
   show _ = "Command unknown or fault"
 
-interpretCmd :: Command -> Bool -> IO CommandReturnCode
-interpretCmd cmd isRealTime =
+interpretCmd :: Command -> Bool -> Bool -> IO CommandReturnCode
+interpretCmd cmd isRealTime isVerbose =
   case cmd of
     Help -> do
       putStrLn "run Help"
@@ -62,7 +62,7 @@ interpretCmd cmd isRealTime =
       let s = encodeUtf8 (T.pack secret)
       let t :: Word64 = fromIntegral timeRange
       let stegoParams = StegoParams s t 6 LsbEncoding 0 isRealTime
-      runEncodeStreamCmd False stegoParams inputFile outputFile
+      runEncodeStreamCmd isVerbose stegoParams inputFile outputFile
       pure CmdSuccess
     (Decode secret timeRange inputFile) -> do
       let s = encodeUtf8 (T.pack secret)
@@ -76,5 +76,5 @@ interpretCmd cmd isRealTime =
       let s = encodeUtf8 (T.pack secret)
       let t :: Word64 = fromIntegral timeRange
       let stegoParams = StegoParams s t 6 LsbEncoding 0 isRealTime
-      runDecodeStreamCmd False stegoParams inputFile
+      runDecodeStreamCmd isVerbose stegoParams inputFile
       pure CmdSuccess

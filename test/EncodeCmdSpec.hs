@@ -38,7 +38,7 @@ spec =
         let inputFile = "test/corpus/sample1.wav"
         let outputFile = "test/output/sample1_out.wav"
         let encodeCmd = Encode "test-secret" 5 inputFile outputFile
-        result <- interpretCmd encodeCmd False
+        result <- interpretCmd encodeCmd False False
         case result of
           EncodeCmdSuccess res -> do
             let (DRS total verified unverified skipped) = getResultStats res
@@ -46,4 +46,6 @@ spec =
             verified `shouldBe` 7
             unverified `shouldBe` 0
             skipped `shouldBe` 11
+            show encodeCmd `shouldBe` "ENCODE"
+            show result `shouldBe` "Encode command completed successfully."
           _ -> True `shouldBe` False -- anything else should fail the test

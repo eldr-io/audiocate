@@ -7,9 +7,20 @@ import Data.Int (Int16)
 import qualified Data.Text as T
 import Data.Text.Encoding (encodeUtf8)
 import Data.Word (Word64)
-import Test.Hspec (Spec, context, describe, it, shouldBe, shouldSatisfy, shouldNotBe)
+import Test.Hspec
+  ( Spec
+  , context
+  , describe
+  , it
+  , shouldBe
+  , shouldNotBe
+  , shouldSatisfy
+  )
 
-import Audiocate (Command(EncodeStream, DecodeStream), CommandReturnCode(CmdSuccess))
+import Audiocate
+  ( Command(DecodeStream, EncodeStream)
+  , CommandReturnCode(CmdSuccess)
+  )
 import Command.Cmd (interpretCmd)
 import Command.EncodeCmd (doEncodeFramesWithEncoder, runEncodeCmd)
 import Data.Audio.Wave
@@ -30,13 +41,18 @@ spec :: Spec
 spec =
   describe "Tests the encoding stream command functionality" $ do
     context
-      "when passing it an encode stream command targeting the sample1.wav test file" $
-      it "should return an encode result that encoded the expected 7 frames" $ do
+      "when passing it an encode stream command targeting the sample1.wav test file" $ do
+      it "should successfully encode stream the chunks" $ do
         let inputFile = "test/corpus/sample1.wav"
         let outputFile = "test/output/sample1_stream_out.wav"
         let encodeCmd = EncodeStream "test-secret" 5 inputFile outputFile
-        result <- interpretCmd encodeCmd False
+        result <- interpretCmd encodeCmd False False
         result `shouldBe` CmdSuccess
-        let decodeCmd = DecodeStream "test-secret" 5 outputFile
-        decodeResult <- interpretCmd decodeCmd False
-        decodeResult `shouldBe` CmdSuccess
+      it "should successfully encode stream the chunks in Verbose mode" $ do
+        let inputFile = "test/corpus/sample1.wav"
+        let outputFile = "test/output/sample1_stream_out.wav"
+        let encodeCmd = EncodeStream "test-secret-123" 3 inputFile outputFile
+        result <- interpretCmd encodeCmd False True
+        result `shouldBe` CmdSuccess
+        show encodeCmd `shouldBe` "ENCODESTREAM"
+        show result `shouldBe` "Command completed successfully."

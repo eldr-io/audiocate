@@ -1,5 +1,5 @@
 echo "Creating composite result files.."
-for file in *.png
+for file in test/analyse/*.png
 do
     outfile="${file%.*}_out.png"
     resultFile="${file%.*}_out_compare.png"

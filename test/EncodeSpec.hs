@@ -9,6 +9,8 @@ import Data.Text.Encoding (encodeUtf8)
 import Data.Word (Word64)
 import Test.Hspec
 
+import Control.Concurrent.STM (newBroadcastTChanIO, newTQueueIO)
+
 import Command.EncodeCmd (doEncodeFramesWithEncoder)
 import Data.Audio.Wave
   ( Frames
@@ -22,7 +24,11 @@ import Stego.Decode.Decoder
   , DecoderResultStats(DRS)
   , getResultStats
   )
-import Stego.Encode.Encoder (Encoder(Encoder, stegoParams), newEncoder)
+import Stego.Encode.Encoder
+  ( Encoder(Encoder, stegoParams)
+  , newEncoder
+  , newEncoderWithQC
+  )
 
 spec :: Spec
 spec =
@@ -57,3 +63,30 @@ spec =
         encoder <- newEncoder stegoParams
         result <- doEncodeFramesWithEncoder encoder frames
         result `shouldBe` [SkippedFrame frame]
+    context "when passing it frames that are valid for encoding" $
+      it "should return an encode result that verified all frames" $ do
+        let rawSamplesRest :: [Int16] = [i + 1 * 50 | i <- [0 .. 20000]]
+        let frame = (0, rawSamplesRest)
+        let frames = [frame, frame, frame, frame, frame]
+        encoder <- newEncoder stegoParams
+        result <- doEncodeFramesWithEncoder encoder frames
+        let (DRS total verified unverified skipped) = getResultStats result
+        total `shouldBe` 5
+        verified `shouldBe` 5
+        unverified `shouldBe` 0
+        skipped `shouldBe` 0
+    context
+      "when injecting channels and passing it frames that are valid for encoding" $
+      it "should return an encode result that verified all frames" $ do
+        let rawSamplesRest :: [Int16] = [i + 1 * 50 | i <- [0 .. 20000]]
+        let frame = (0, rawSamplesRest)
+        let frames = [frame, frame, frame, frame, frame]
+        opQ <- newTQueueIO
+        resultChan <- newBroadcastTChanIO
+        encoder <- newEncoderWithQC stegoParams opQ resultChan
+        result <- doEncodeFramesWithEncoder encoder frames
+        let (DRS total verified unverified skipped) = getResultStats result
+        total `shouldBe` 5
+        verified `shouldBe` 5
+        unverified `shouldBe` 0
+        skipped `shouldBe` 0
