@@ -26,5 +26,7 @@ cabal.project.local~
 
 test/output/*.wav
 test/output/*.png
+test/output/*.svg
+test/output/*.csv
 test/corpus/*.png
 test/analyse/*.png
