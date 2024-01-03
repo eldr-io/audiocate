@@ -1,0 +1,21 @@
+sh test/analyse/createSpectrograms.sh
+Creating corpus spectrograms..
+Creating output spectrograms..
+Done.
+sh test/analyse/analyseSpectrograms.sh
+Creating composite result files..
+test/analyse/sample1.png=>test/analyse/sample1_out_compare.png PNG 800x513 8-bit sRGB 268695B 1.400u 0:00.674
+test/analyse/sample10.png=>test/analyse/sample10_out_compare.png PNG 800x513 8-bit sRGB 338917B 1.140u 0:00.503
+test/analyse/sample11.png=>test/analyse/sample11_out_compare.png PNG 800x513 8-bit sRGB 349165B 1.340u 0:00.687
+test/analyse/sample12.png=>test/analyse/sample12_out_compare.png PNG 800x513 8-bit sRGB 323413B 1.400u 0:00.756
+test/analyse/sample13.png=>test/analyse/sample13_out_compare.png PNG 800x513 8-bit sRGB 343087B 1.600u 0:00.913
+test/analyse/sample14.png=>test/analyse/sample14_out_compare.png PNG 800x513 8-bit sRGB 224985B 1.240u 0:00.588
+test/analyse/sample1_rt.png=>test/analyse/sample1_rt_out_compare.png PNG 800x513 8-bit sRGB 268695B 1.350u 0:00.671
+test/analyse/sample2.png=>test/analyse/sample2_out_compare.png PNG 800x513 8-bit sRGB 247222B 1.340u 0:00.643
+test/analyse/sample3.png=>test/analyse/sample3_out_compare.png PNG 800x513 8-bit sRGB 231615B 1.300u 0:00.618
+test/analyse/sample4.png=>test/analyse/sample4_out_compare.png PNG 800x513 8-bit sRGB 361180B 1.300u 0:00.652
+test/analyse/sample5.png=>test/analyse/sample5_out_compare.png PNG 800x513 8-bit sRGB 298267B 1.160u 0:00.477
+test/analyse/sample6.png=>test/analyse/sample6_out_compare.png PNG 800x513 8-bit sRGB 220683B 1.630u 0:00.947
+test/analyse/sample7.png=>test/analyse/sample7_out_compare.png PNG 800x513 8-bit sRGB 349938B 1.310u 0:00.656
+test/analyse/sample8.png=>test/analyse/sample8_out_compare.png PNG 800x513 8-bit sRGB 351493B 1.300u 0:00.672
+test/analyse/sample9.png=>test/analyse/sample9_out_compare.png PNG 800x513 8-bit sRGB 363346B 1.320u 0:00.640
