@@ -11,7 +11,7 @@ import Command.Cmd (Command(..), CommandReturnCode(..), interpretCmd)
 
 -- | Runs the provided Command 
 run :: Command -> Bool -> Bool -> IO CommandReturnCode
-run cmd isRealTime isVerbose = interpretCmd cmd isRealTime isVerbose
+run = interpretCmd
 
 -- | Prints the version string
 version :: String

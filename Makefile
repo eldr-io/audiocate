@@ -1,5 +1,5 @@
-PHONY: test
-test:
+PHONY: run-tests
+run-tests:
 	@cabal test
 
 build-all:

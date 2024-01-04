@@ -43,7 +43,7 @@ main = do
     show (optCommand opts) ++
     " (verbose: " ++ show (optVerboseFlag opts) ++ ")\n" ++
     " (realtime: " ++ show (optRealTimeFlag opts) ++ ")\n"
-  rc <- run (optCommand opts) (optRealTimeFlag opts)
+  rc <- run (optCommand opts) (optRealTimeFlag opts) (optVerboseFlag opts)
   print rc
   where
     optsParser :: ParserInfo Opts
