@@ -2,7 +2,7 @@ allow-newer: all
 tests: True
 packages: .
 package audiocate
-  coverage: True
+  coverage: False
   library-coverage: True
 package attoparsec
   coverage: False

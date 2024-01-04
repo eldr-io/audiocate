@@ -11,7 +11,9 @@ build-lib:
 build-cli:
 	@cabal build exe:audiocate
 
+PHONY: build-gui
 build-gui:
+	@sh gui/compileResources.sh
 	@cabal build audiocate-gui
 
 PHONY: install-cli
@@ -26,6 +28,9 @@ install:
 	@cabal install exe:audiocate --overwrite-policy=always
 	@cabal install audiocate-gui --overwrite-policy=always
 
+run-gui:
+	@cabal run audiocate-gui
+	
 benchmark-test:
 	@cabal run bench -- --svg test/output/bench_results.svg --csv test/output/bench_results.csv +RTS -T
 

@@ -41,8 +41,8 @@ main = do
   putStrLn $
     "\nRunning command " ++
     show (optCommand opts) ++
-    " (verbose: " ++ show (optVerboseFlag opts) ++ ")\n" ++
-    " (realtime: " ++ show (optRealTimeFlag opts) ++ ")\n"
+    " (realtime: " ++ show (optRealTimeFlag opts) ++ ")\n" ++
+    " (verbose: " ++ show (optVerboseFlag opts) ++ ")\n" 
   rc <- run (optCommand opts) (optRealTimeFlag opts) (optVerboseFlag opts)
   print rc
   where
