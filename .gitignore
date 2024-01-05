@@ -23,8 +23,8 @@ cabal.project.local~
 .ghc.environment.*
 *_enc.wav
 *.tix
-docs/
-docs
+docs/audiocate
+docs/audiocate/*
 
 test/output/*.wav
 test/output/*.png
