@@ -1,8 +1,7 @@
 {-# LANGUAGE TypeApplications #-}
 
-{- | Contains logic for interacting with 16-bit Wave files including
-parsing, reading and writing to files and converting to types.
--}
+-- | Contains logic for interacting with 16-bit Wave files including
+-- parsing, reading and writing to files and converting to types.
 module Data.Audio.Wave
   ( WaveAudio(..)
   , Sample
@@ -67,9 +66,8 @@ toWaveAudio path (Audio hz chans raw) =
   where
     chunks = chunksOf hz (elems raw)
 
-{- | Attempts to read the provided Wave file into 16-bit samples
-or returns an error string.
--}
+-- | Attempts to read the provided Wave file into 16-bit samples
+-- or returns an error string.
 readWaveFile :: FilePath -> IO (Either String (Audio Int16))
 readWaveFile path = do
   wav <- Codec.Wav.importFile path
@@ -79,15 +77,13 @@ readWaveFile path = do
 readWaveFile' :: FilePath -> ExceptT String IO (Audio Int16)
 readWaveFile' path = ExceptT (readWaveFile path)
 
-{- | Attempts to read the wave file at the provided filepath into
-a full WaveAudio instance.
--}
+-- | Attempts to read the wave file at the provided filepath into
+-- a full WaveAudio instance.
 waveAudioFromFile :: FilePath -> ExceptT String IO WaveAudio
 waveAudioFromFile path = toWaveAudio path <$> readWaveFile' path
 
-{- | Writes the provided WaveAudio to a valid .wav file at path or raises
-an IOException in the ExcepT monad
--}
+-- | Writes the provided WaveAudio to a valid .wav file at path or raises
+-- an IOException in the ExcepT monad
 waveAudioToFile :: FilePath -> WaveAudio -> ExceptT String IO ()
 waveAudioToFile path w = do
   withExceptT (show @IOException) $

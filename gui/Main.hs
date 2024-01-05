@@ -11,7 +11,8 @@ import System.Environment (getArgs, getProgName)
 import MainWindow (initMainWindow, MainWindow (window))
 import AppState (newAppState)
 
-
+-- | Activates the Adwaita GTK application by initialising 
+-- the MainWindow and presenting it.
 activate :: Adw.Application -> IO ()
 activate app = do
   appState <- newAppState
@@ -19,6 +20,8 @@ activate app = do
   let w = window mw
   w.present
 
+-- | Helper function for toggling the light and dark theme of the 
+-- application.
 toggleTheme :: Adw.Application -> [String] -> IO ()
 toggleTheme _ [] = pure ()
 toggleTheme app ["--light"] = do
@@ -26,6 +29,7 @@ toggleTheme app ["--light"] = do
   Adw.setStyleManagerColorScheme sm Adw.ColorSchemeForceLight
 toggleTheme _ _ = pure ()
 
+-- | Main entry point for the GUI application.
 main :: IO ()
 main = do
   args <- getArgs

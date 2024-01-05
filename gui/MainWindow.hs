@@ -1,3 +1,5 @@
+-- | MainWindow module definition, acting as the top level container 
+-- of the GUI application.
 module MainWindow where
 
 import AppState (AppState)
@@ -22,6 +24,7 @@ import View.LoadView (LoadView(..), initLoadView)
 import GI.Gio (MenuItem(..), menuItemSetLabel)
 import qualified GI.Gio as Gtk
 
+-- | MainWindow ADT that holds boxed pointers to relevant components
 data MainWindow =
   MainWindow
     { application :: !Adw.Application
@@ -33,17 +36,23 @@ data MainWindow =
     , loadView :: !LoadView
     }
 
+-- | Sets the EncodeViewFileLoaded MVar mutex to signal that a 
+-- file was successfully loaded.
 updateEncodeViewFileLoad :: MVar Bool -> AppState -> EncodeView -> IO ()
 updateEncodeViewFileLoad fileLoadedMVar state encodeView = do
   _ <- takeMVar fileLoadedMVar
   updateEncodeViewAudioFileLoaded state encodeView
   putMVar fileLoadedMVar True
 
+-- | Sets the DecodeViewFileLoaded MVar mutex to signal that a 
+-- file was successfully loaded.
 updateDecodeViewFileLoad :: MVar Bool -> AppState -> DecodeView -> IO ()
 updateDecodeViewFileLoad fileLoadedMVar state decodeView = do
   _ <- takeMVar fileLoadedMVar
   updateDecodeViewAudioFileLoaded state decodeView
 
+-- | Initialises the MainWindow by instantiating the sub-views and 
+-- the Adwaita ApplicationWindow instance.
 initMainWindow :: Adw.Application -> AppState -> IO MainWindow
 initMainWindow app state = do
   content <- new Gtk.Box [#orientation := Gtk.OrientationVertical]
@@ -57,17 +66,22 @@ initMainWindow app state = do
       , #defaultWidth := 1220
       , #defaultHeight := 800
       ]
-  let welcomeTitle = "Audiocate " <> version
-  encodeView <- initEncodeView state overlay
-  let encViewBox = encodeViewBox encodeView
-  decodeView <- initDecodeView state overlay
-  let decViewBox = decodeViewBox decodeView
+
+  -- run signal handlers for fileload Mutex operations
   fileLoadedMVar <- newEmptyMVar
   _ <-
     forkIO (forever $ updateEncodeViewFileLoad fileLoadedMVar state encodeView)
   _ <-
     forkIO (forever $ updateDecodeViewFileLoad fileLoadedMVar state decodeView)
+
+  -- instantiate sub-views
+  let welcomeTitle = "Audiocate " <> version
+  encodeView <- initEncodeView state overlay
+  let encViewBox = encodeViewBox encodeView
+  decodeView <- initDecodeView state overlay
+  let decViewBox = decodeViewBox decodeView
   loadView <- initLoadView window state overlay fileLoadedMVar
+
   let lViewBox = loadViewBox loadView
   welcomePage <-
     new

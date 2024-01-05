@@ -29,12 +29,14 @@ import Stego.Decode.Decoder
   , stopDecoder
   )
 
+-- | Creates a decoder instance using doDecodeWaveAudio to decode the audio read from 
+-- the input audiofile. Returns an error or the DecoderResultList of the decoding.
 runDecodeCmd :: StegoParams -> FilePath -> IO (Either String DecoderResultList)
 runDecodeCmd stegoParams inputFile = do
   startTime <- getCurrentTime
   audio <- runExceptT (waveAudioFromFile inputFile)
   case audio of
-    Left err -> do 
+    Left err -> do
       pure (Left err)
     Right wa -> do
       result <- doDecodeWaveAudio stegoParams wa
@@ -44,16 +46,18 @@ runDecodeCmd stegoParams inputFile = do
       putStrLn $ "Completed decode in " <> show (diffUTCTime endTime startTime)
       pure (Right result)
 
+-- | Creates a decoder instance to decode the audio in the provided WaveAudio
+-- instance. Returns the resulting DecoderResultList. 
 doDecodeWaveAudio :: StegoParams -> WaveAudio -> IO DecoderResultList
 doDecodeWaveAudio stegoParams waveAudio = do
   decoder <- newDecoder stegoParams
   resD <- getResultChannel decoder
-  m <- newEmptyTMVarIO
-  void $ forkIO $ decodeLoop resD [] m
+  decodeDoneMutex <- newEmptyTMVarIO
+  void $ forkIO $ decodeLoop resD [] decodeDoneMutex
   let frames = audioFrames waveAudio
   mapM_ (enqueueFrame decoder) frames
   _ <- stopDecoder decoder
-  atomically $ takeTMVar m
+  atomically $ takeTMVar decodeDoneMutex
   where
     decodeLoop channel fs resultVar = do
       res <- atomically $ readTChan channel
@@ -64,14 +68,16 @@ doDecodeWaveAudio stegoParams waveAudio = do
         f -> do
           decodeLoop channel (f : fs) resultVar
 
+-- | Similar to doDecodeWaveAudio. Decodes the provided Frames using an 
+-- injected Decoder instance, and returns the DecoderResultList.
 doDecodeFramesWithDecoder :: Decoder -> Frames -> IO DecoderResultList
 doDecodeFramesWithDecoder decoder frames = do
   resD <- getResultChannel decoder
-  m <- newEmptyTMVarIO
-  void $ forkIO $ decodeLoop resD [] m
+  decodeDoneMutex <- newEmptyTMVarIO
+  void $ forkIO $ decodeLoop resD [] decodeDoneMutex
   mapM_ (enqueueFrame decoder) frames
   _ <- stopDecoder decoder
-  atomically $ takeTMVar m
+  atomically $ takeTMVar decodeDoneMutex
   where
     decodeLoop channel fs resultVar = do
       res <- atomically $ readTChan channel

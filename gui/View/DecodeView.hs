@@ -1,3 +1,4 @@
+-- | Module that defines the DecodeView
 module View.DecodeView
   ( DecodeView(..)
   , initDecodeView

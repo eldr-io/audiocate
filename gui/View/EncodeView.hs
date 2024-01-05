@@ -1,3 +1,4 @@
+-- | Module that defines the EncodeView
 module View.EncodeView
   ( EncodeView(..)
   , initEncodeView

@@ -52,6 +52,8 @@ runEncodeStreamCmd verbose stegoP inputFile outputFile = do
       runConduitRes $
         CA.sinkSnd outputFile fmt (CA.AudioSource source rate channels frames)
 
+-- | Helper function for encoding a single Frame or skipping it 
+-- based on the Stego.Common.shouldSkipFrame function result.
 doEncodeFrame :: StegoParams -> UTCTime -> Frame -> Frame
 doEncodeFrame stegoP time f =
   if shouldSkipFrame f

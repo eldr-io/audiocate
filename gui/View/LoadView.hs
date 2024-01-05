@@ -1,3 +1,4 @@
+-- | Module that defines the LoadView
 module View.LoadView
   ( LoadView (..),
     initLoadView,

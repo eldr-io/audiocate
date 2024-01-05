@@ -41,5 +41,9 @@ analyse-spectrograms:
 	sh test/analyse/createSpectrograms.sh
 	sh test/analyse/analyseSpectrograms.sh
 
+generate-docs:
+	cabal haddock --html docs
+	cp -r ./dist-newstyle/build/x86_64-linux/ghc-9.4.7/audiocate-0.2.0.0/doc/html/audiocate/ ./docs
+
 help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.* ?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'

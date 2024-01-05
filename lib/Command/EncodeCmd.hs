@@ -28,6 +28,9 @@ import Stego.Encode.Encoder
   , stopEncoder
   )
 
+-- | Creates two concurrent encoder and decoder instances to encode 
+-- the input audiofile and writes the decoded result audio to the output 
+-- file location. Returns an error or the DecoderResultList of the decoding.
 runEncodeCmd ::
      StegoParams
   -> FilePath
@@ -67,6 +70,9 @@ runEncodeCmd stegoParams inputFile outputFile = do
             "Completed encode in " <> show (diffUTCTime endTime startTime)
           pure (Right combined)
 
+-- | Helper function used to create an encoder and decoder pair to 
+-- encode the provided Frames, returning the DecoderResultList of the 
+-- encoding.
 doEncodeFrames :: StegoParams -> Frames -> IO DC.DecoderResultList
 doEncodeFrames stegoParams frames = do
   encoder <- newEncoder stegoParams
@@ -98,7 +104,8 @@ doEncodeFrames stegoParams frames = do
         _ -> do
           printLoop c (fs + 1) totalFs
 
--- | Performs an Encoding on the provided Frames using the provided Encoder instance
+-- | Similar to doEncodeFrames. 
+-- Performs an Encoding on the provided Frames using the provided Encoder instance
 doEncodeFramesWithEncoder :: Encoder -> Frames -> IO DC.DecoderResultList
 doEncodeFramesWithEncoder encoder frames = do
   let stegoPs = stegoParams encoder

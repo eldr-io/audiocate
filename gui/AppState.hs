@@ -1,3 +1,5 @@
+-- | Represents GUI application state that is passed around 
+-- between functions.
 module AppState (
   AppState (..),
   AppStateLoadedAudio (..),

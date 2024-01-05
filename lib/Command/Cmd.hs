@@ -44,6 +44,9 @@ instance Show CommandReturnCode where
   show (DecodeCmdSuccess _) = "Decode command completed successfully."
   show _ = "Command unknown or fault"
 
+-- | Top level interpret function that takes a Command and a realTime and 
+-- verbose flag and executes the Command. Returns a CommandReturnCode indicating 
+-- the result of the execution.
 interpretCmd :: Command -> Bool -> Bool -> IO CommandReturnCode
 interpretCmd cmd isRealTime isVerbose =
   case cmd of

@@ -34,6 +34,9 @@ data Opts =
     , optCommand :: !Command
     }
 
+-- | Main entry point to the CLI executable. Uses optparse-applicative to 
+-- parse various CLI parameters and create and execute the appropriate 
+-- Audiocate Command.
 main :: IO ()
 main = do
   (opts :: Opts) <- execParser optsParser

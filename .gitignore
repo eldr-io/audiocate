@@ -23,6 +23,8 @@ cabal.project.local~
 .ghc.environment.*
 *_enc.wav
 *.tix
+docs/
+docs
 
 test/output/*.wav
 test/output/*.png
